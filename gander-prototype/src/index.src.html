@@ -1,0 +1,125 @@
+<title>Gander</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/*__CSS__*/
+</style>
+
+<div id="deco" aria-hidden="true">
+  <img class="s1" src="assets/p1_04_orange-watercolor-splotch-shape.png" alt="">
+  <img class="s2" src="assets/p1_02_pink-watercolor-splatter.png" alt="">
+  <img class="s3" src="assets/p1_11_watercolor-splash-splatter-pastel.png" alt="">
+  <img class="s4" src="assets/p4_02_watercolor-splash-clip-art.png" alt="">
+</div>
+
+<div id="app" data-stage="globe">
+  <header id="topbar">
+    <div class="logo" title="Gander">
+      <svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="13" fill="var(--sk-ink)"/><path d="M8 17c3-6 8-8 12-8-1 4-4 8-9 9l-3-1z" fill="var(--sk-ground)"/><circle cx="17.5" cy="11.5" r="1.3" fill="var(--sk-bill)"/></svg>
+      Gander
+    </div>
+    <nav id="crumbs" aria-label="Stages">
+      <button data-go="globe" class="on"><i></i>Where &amp; when</button>
+      <button data-go="board" disabled><i></i>Board</button>
+      <button data-go="options" disabled><i></i>Options</button>
+      <button data-go="refine" disabled><i></i>Refine</button>
+      <button data-go="export" disabled><i></i>Export</button>
+    </nav>
+    <div id="tripline"></div>
+    <div class="seg" role="group" aria-label="Theme" style="margin-left:12px">
+      <button type="button" data-theme="sys" aria-pressed="true">Auto</button>
+      <button type="button" data-theme="light" aria-pressed="false">Light</button>
+      <button type="button" data-theme="dark" aria-pressed="false">Dark</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ===== 1 · GLOBE ===== -->
+    <section id="v-globe">
+      <div id="globe-left">
+        <h1>Where are we <em>going</em>?</h1>
+        <p class="lede">Pick a place and a stretch of days. Then you'll build the trip out of photographs, and Gander will turn the pile into a plan.</p>
+        <div class="search">
+          <label class="inp"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="where" type="text" placeholder="A country, a region, a city… try Sri Lanka" autocomplete="off"></label>
+          <div class="drop" id="where-drop" hidden></div>
+        </div>
+        <div class="dates">
+          <div class="row">
+            <label class="di">from <input id="d-start" type="date" value="2024-08-10"></label>
+            <label class="di">to <input id="d-end" type="date" value="2024-08-24"></label>
+            <span class="len" id="d-len"></span>
+          </div>
+          <div class="row">
+            <div class="seg" id="d-shape" role="group" aria-label="Date shape"><button type="button" aria-pressed="true">Exact</button><button type="button" aria-pressed="false">± 3 days</button><button type="button" aria-pressed="false">A month</button><button type="button" aria-pressed="false">Not sure</button></div>
+            <div class="party" id="party"><button class="pill">Solo</button><button class="pill on">Couple</button><button class="pill">Friends</button><button class="pill">Family with kids</button></div>
+          </div>
+        </div>
+        <div class="feas" id="feas"><i></i><span>Fourteen nights is the classic Sri Lanka loop — enough for the hills, a safari and the coast.</span></div>
+        <div class="go"><button class="btn primary lg" id="go-board" disabled>Start the board <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button><span class="hint">or tap a photo on the globe</span></div>
+      </div>
+      <div id="globe-right">
+        <canvas id="globe"></canvas>
+        <div id="globe-feat"></div>
+        <button class="btn quiet sm express" id="express">Express: Sri Lanka, 14 days, go →</button>
+      </div>
+    </section>
+
+    <!-- ===== 2 · BOARD ===== -->
+    <section id="v-board" hidden>
+      <div id="board-map" class="map"></div>
+      <div id="board-shelves"></div>
+      <div id="tray-wrap">
+        <div class="meter"><div class="bar"><i id="meter-fill"></i><b title="days you have"></b></div><div class="txt" id="meter-txt"></div></div>
+        <div class="ribbon" id="ribbon"></div>
+        <div id="tray"></div>
+        <div class="tray-foot">
+          <span class="hint"><b>Tap</b> a photo to add · <b>tap again</b> in the tray for must-have · <b>drag up</b> to remove · <b>drag onto the calendar</b> to peg a day</span>
+          <button class="btn primary" id="plan-it" disabled>Plan it <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 4 · WORKSPACE (options → refine) ===== -->
+    <section id="v-work" hidden data-mode="options">
+      <div id="dash">
+        <div id="dash-top">
+          <div class="tabs" id="tabs" role="tablist"></div>
+          <div id="chosen-h"><h2 id="chosen-title"></h2><span class="sub" id="chosen-sub"></span></div>
+          <button class="btn quiet sm" id="compare">Compare</button>
+          <button class="btn ink sm" id="choose">Go with this one</button>
+          <button class="btn quiet sm" id="to-export" hidden>Export &amp; book</button>
+        </div>
+        <div id="dash-map" class="map"></div>
+        <div id="dash-days"></div>
+        <div id="variants"></div>
+        <div id="dash-stats"></div>
+        <div id="gen" hidden><i></i><span id="gen-txt"></span></div>
+      </div>
+      <aside id="chat">
+        <div id="chat-h"><span class="live"></span><b>Planner</b><span id="chat-sub">reading your board</span></div>
+        <div id="chat-log"></div>
+        <div id="composer">
+          <div id="chips"></div>
+          <div class="cbox"><input id="chat-in" type="text" placeholder="Ask, or tell me what to change…" autocomplete="off"><button class="send" id="chat-send" aria-label="Send"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
+          <div class="quick" id="quick"></div>
+        </div>
+      </aside>
+    </section>
+
+    <!-- ===== 5 · EXPORT ===== -->
+    <section id="v-export" hidden><div class="exp" id="exp"></div></section>
+  </main>
+</div>
+
+<div id="cards"></div>
+<section id="v-questions" hidden><div class="qcard" id="qcard"></div></section>
+<div id="hero" hidden></div>
+<div id="toasts"></div>
+<div id="print"></div>
+
+<script>
+/*__DATA__*/
+</script>
+<script>
+/*__APP__*/
+</script>

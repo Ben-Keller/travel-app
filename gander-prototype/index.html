@@ -1,0 +1,1772 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<meta name="description" content="Gander — a trip planner where you plan by picking pictures. Interactive prototype: Sri Lanka, August 2024.">
+<meta name="theme-color" content="#EDF0EE" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101614" media="(prefers-color-scheme: dark)">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Gander — plan by picking pictures">
+<meta property="og:description" content="Interactive prototype of the full five-stage flow. Sri Lanka, August 2024.">
+<meta property="og:image" content="og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<title>Gander</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* ==========================================================================
+   SKEIN — the Gander design system · tokens v0.1
+   A skein is a flock of geese in flight, and a coiled length of thread.
+   The route is the thread. The cards are the beads. Everything else is quiet.
+   ========================================================================== */
+
+:root {
+  /* ---- Ground & ink (light) ------------------------------------------- */
+  --sk-ground:     #EDF0EE;   /* Fog — the page. Cool, slightly green, never cream */
+  --sk-surface:    #FFFFFF;   /* Sheet — panels, cards' chrome, chat */
+  --sk-surface-2:  #F5F7F6;   /* Sheet-2 — wells, inputs, shelf rails */
+  --sk-ink:        #14201F;   /* Slate — primary text, locks, the tray floor */
+  --sk-ink-2:      #4A5856;   /* secondary text */
+  --sk-ink-3:      #7C8987;   /* muted text, placeholders, ghost pins */
+  --sk-line:       #D5DBD9;   /* hairlines */
+  --sk-line-2:     #E4E9E7;   /* softer hairlines inside wells */
+
+  /* ---- The one accent -------------------------------------------------- */
+  --sk-bill:       #FF6A2B;   /* Bill — a goose's bill. Must-haves, primary action, the hovered thing */
+  --sk-bill-hover: #EE5A1C;
+  --sk-bill-soft:  #FFE9DF;   /* tinted wash behind a must-have chip's label */
+  --sk-on-bill:    #14201F;   /* text on Bill */
+
+  /* ---- The thread ------------------------------------------------------ */
+  --sk-thread:     #1B6C86;   /* Wake — the route line, transit connectors, links */
+  --sk-thread-soft:#DCEBF0;
+
+  /* ---- Semantic (never used as accent) --------------------------------- */
+  --sk-ok:         #3F8A5B;   /* Marsh — feasible, booked */
+  --sk-warn:       #D9A43A;   /* Straw — tight, needs attention */
+  --sk-bad:        #C9452F;   /* Brick — over capacity, hard conflict */
+  --sk-ok-soft:    #E3F0E7;
+  --sk-warn-soft:  #F9EFD8;
+  --sk-bad-soft:   #F8E1DC;
+
+  /* ---- Photo scrim (over imagery, any theme) --------------------------- */
+  --sk-scrim:      linear-gradient(180deg, rgba(20,32,31,0) 45%, rgba(20,32,31,.72) 100%);
+  --sk-on-photo:   #FFFFFF;
+
+  /* ---- Type ------------------------------------------------------------ */
+  --sk-font-display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+  --sk-font-body:    "IBM Plex Sans", "Segoe UI", Roboto, system-ui, sans-serif;
+  --sk-font-data:    "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+
+  --sk-t-1: 0.75rem;   /* 12 — data labels, coordinates */
+  --sk-t-2: 0.8125rem; /* 13 — chips, captions */
+  --sk-t-3: 0.875rem;  /* 14 — UI body */
+  --sk-t-4: 1rem;      /* 16 — reading body */
+  --sk-t-5: 1.25rem;   /* 20 — card names (hero), section leads */
+  --sk-t-6: 1.625rem;  /* 26 — option thesis, day headers */
+  --sk-t-7: 2.125rem;  /* 34 — page titles */
+  --sk-t-8: 3rem;      /* 48 — stat numerals */
+  --sk-t-9: 4.25rem;   /* 68 — the one big number */
+
+  --sk-lh-tight: 1.1;
+  --sk-lh-ui:    1.35;
+  --sk-lh-read:  1.55;
+  --sk-track-label: 0.06em;
+
+  /* ---- Space (4pt) ----------------------------------------------------- */
+  --sk-s-1: 4px;  --sk-s-2: 8px;  --sk-s-3: 12px; --sk-s-4: 16px;
+  --sk-s-5: 20px; --sk-s-6: 24px; --sk-s-7: 32px; --sk-s-8: 40px;
+  --sk-s-9: 56px; --sk-s-10: 72px;
+
+  /* ---- Radius: grows with the object ----------------------------------- */
+  --sk-r-pin:   999px;  /* map pin — a circle */
+  --sk-r-chip:  8px;    /* tray / slot chip */
+  --sk-r-tile:  12px;   /* gallery tile */
+  --sk-r-hero:  18px;   /* expanded card */
+  --sk-r-sheet: 24px;   /* panels, mobile sheets */
+  --sk-r-ctl:   10px;   /* buttons, inputs */
+
+  /* ---- Elevation: only moving or floating things cast shadows ---------- */
+  --sk-e-rest:  none;
+  --sk-e-hover: 0 2px 8px rgba(20,32,31,.10), 0 0 0 1px rgba(20,32,31,.04);
+  --sk-e-lift:  0 12px 32px rgba(20,32,31,.22), 0 2px 6px rgba(20,32,31,.10);   /* a card in flight */
+  --sk-e-sheet: 0 24px 64px rgba(20,32,31,.28);
+
+  /* ---- Card size classes ----------------------------------------------- */
+  --sk-card-pin:  32px;
+  --sk-card-chip: 64px;
+  --sk-card-tile: 184px;
+  --sk-card-hero: 400px;
+
+  /* ---- Motion: one spring, a few durations ----------------------------- */
+  --sk-spring: cubic-bezier(.22,.9,.24,1.02);  /* ≈ spring(stiffness 380, damping 32) */
+  --sk-ease-out: cubic-bezier(.2,.7,.2,1);
+  --sk-d-quick:  120ms;   /* hover, focus, toggles */
+  --sk-d-shrink: 240ms;   /* card → pin */
+  --sk-d-settle: 280ms;   /* card → slot */
+  --sk-d-fly:    320ms;   /* card → tray, remix */
+  --sk-d-reveal: 480ms;   /* panels, sheets */
+
+  /* ---- Status rings (drawn on every projection) ------------------------ */
+  --sk-ring-want:   0 0 0 2px var(--sk-surface);
+  --sk-ring-must:   0 0 0 2px var(--sk-surface), 0 0 0 4px var(--sk-bill);
+  --sk-ring-locked: 0 0 0 2px var(--sk-surface), 0 0 0 4px var(--sk-ink);
+  --sk-ring-booked: 0 0 0 2px var(--sk-surface), 0 0 0 4px var(--sk-ok);
+
+  /* ---- Route thread styles by mode ------------------------------------ */
+  --sk-thread-w: 3px;
+  --sk-thread-drive: 0;          /* solid */
+  --sk-thread-fly:   10 8;       /* long dash */
+  --sk-thread-rail:  6 4;        /* short dash */
+  --sk-thread-walk:  1 6;        /* dotted */
+  --sk-thread-ferry: 14 6 2 6;   /* dash-dot */
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --sk-ground:     #0F1516;
+    --sk-surface:    #17201F;
+    --sk-surface-2:  #1E2928;
+    --sk-ink:        #ECF0EE;
+    --sk-ink-2:      #A8B4B1;
+    --sk-ink-3:      #718280;
+    --sk-line:       #2C3836;
+    --sk-line-2:     #243030;
+    --sk-bill:       #FF7A3D;
+    --sk-bill-hover: #FF8B57;
+    --sk-bill-soft:  #3A2418;
+    --sk-on-bill:    #0F1516;
+    --sk-thread:     #5FB3CE;
+    --sk-thread-soft:#1A2F37;
+    --sk-ok:         #6CC08A;  --sk-ok-soft:   #16301F;
+    --sk-warn:       #E7B75A;  --sk-warn-soft: #362A12;
+    --sk-bad:        #E5654F;  --sk-bad-soft:  #3B1A15;
+    --sk-e-hover: 0 2px 8px rgba(0,0,0,.35), 0 0 0 1px rgba(255,255,255,.04);
+    --sk-e-lift:  0 12px 32px rgba(0,0,0,.55), 0 2px 6px rgba(0,0,0,.3);
+    --sk-e-sheet: 0 24px 64px rgba(0,0,0,.6);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --sk-ground:     #0F1516;
+  --sk-surface:    #17201F;
+  --sk-surface-2:  #1E2928;
+  --sk-ink:        #ECF0EE;
+  --sk-ink-2:      #A8B4B1;
+  --sk-ink-3:      #718280;
+  --sk-line:       #2C3836;
+  --sk-line-2:     #243030;
+  --sk-bill:       #FF7A3D;
+  --sk-bill-hover: #FF8B57;
+  --sk-bill-soft:  #3A2418;
+  --sk-on-bill:    #0F1516;
+  --sk-thread:     #5FB3CE;
+  --sk-thread-soft:#1A2F37;
+  --sk-ok:         #6CC08A;  --sk-ok-soft:   #16301F;
+  --sk-warn:       #E7B75A;  --sk-warn-soft: #362A12;
+  --sk-bad:        #E5654F;  --sk-bad-soft:  #3B1A15;
+  --sk-e-hover: 0 2px 8px rgba(0,0,0,.35), 0 0 0 1px rgba(255,255,255,.04);
+  --sk-e-lift:  0 12px 32px rgba(0,0,0,.55), 0 2px 6px rgba(0,0,0,.3);
+  --sk-e-sheet: 0 24px 64px rgba(0,0,0,.6);
+  color-scheme: dark;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --sk-d-quick: 0ms; --sk-d-shrink: 120ms; --sk-d-settle: 120ms;
+    --sk-d-fly: 120ms; --sk-d-reveal: 120ms;
+  }
+}
+
+/* Gander prototype · app.css · built on Skein tokens (inlined above at build) */
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--sk-ground);color:var(--sk-ink);font-family:var(--sk-font-body);font-size:var(--sk-t-3);line-height:var(--sk-lh-ui);-webkit-font-smoothing:antialiased;overflow:hidden}
+button{font:inherit;color:inherit}
+h1,h2,h3,h4{font-family:var(--sk-font-display);font-variation-settings:"opsz" 96;line-height:var(--sk-lh-tight);margin:0;text-wrap:balance}
+a{color:var(--sk-thread)}
+code,.mono{font-family:var(--sk-font-data);font-variant-numeric:tabular-nums}
+.label{font-family:var(--sk-font-data);font-size:var(--sk-t-1);letter-spacing:var(--sk-track-label);text-transform:uppercase;color:var(--sk-ink-3)}
+[hidden]{display:none!important}
+
+#app{position:fixed;inset:0;display:grid;grid-template-rows:56px 1fr;overflow:hidden}
+#app > main{position:relative;min-height:0}
+#app > main > section{position:absolute;inset:0;overflow:hidden}
+
+/* ===== decoration layer (watercolor) ===== */
+#deco{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+#deco img{position:absolute;opacity:.9;mix-blend-mode:multiply;transition:opacity 600ms ease,transform 900ms var(--sk-ease-out)}
+:root[data-theme="dark"] #deco img{mix-blend-mode:screen;opacity:.35}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) #deco img{mix-blend-mode:screen;opacity:.35}}
+#deco .s1{left:-14vw;top:-18vh;width:52vw}
+#deco .s2{right:-10vw;top:-22vh;width:44vw}
+#deco .s3{left:-8vw;bottom:-24vh;width:40vw}
+#deco .s4{right:-6vw;bottom:-18vh;width:36vw}
+#app[data-stage="globe"] #deco .s1{transform:rotate(-8deg)}
+#app[data-stage="board"] #deco img,#app[data-stage="questions"] #deco img{opacity:.55}
+#app[data-stage="work"] #deco img{opacity:.35}
+#app[data-stage="work"] #deco .s3,#app[data-stage="work"] #deco .s4{opacity:.5}
+
+/* ===== top bar ===== */
+#topbar{position:relative;z-index:5;display:flex;align-items:center;gap:var(--sk-s-4);padding:0 var(--sk-s-5);background:color-mix(in srgb,var(--sk-surface) 72%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--sk-line)}
+#topbar .logo{display:flex;align-items:center;gap:10px;font-family:var(--sk-font-display);font-weight:800;font-size:var(--sk-t-5);letter-spacing:-.02em}
+#topbar .logo svg{width:28px;height:28px}
+#crumbs{display:flex;gap:2px;margin-left:var(--sk-s-4)}
+#crumbs button{background:transparent;border:0;padding:6px 10px;border-radius:999px;color:var(--sk-ink-3);font-size:var(--sk-t-2);font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px}
+#crumbs button i{width:6px;height:6px;border-radius:999px;background:currentColor;opacity:.5}
+#crumbs button.on{color:var(--sk-ink);background:var(--sk-surface-2)}
+#crumbs button.on i{background:var(--sk-bill);opacity:1}
+#crumbs button.done{color:var(--sk-ink-2)}
+#crumbs button:disabled{cursor:default}
+#tripline{margin-left:auto;display:flex;align-items:center;gap:10px;font-size:var(--sk-t-2);color:var(--sk-ink-2)}
+#tripline .mono{color:var(--sk-ink)}
+.seg{display:inline-flex;background:var(--sk-surface-2);border:1px solid var(--sk-line);border-radius:var(--sk-r-ctl);padding:3px;gap:2px}
+.seg button{font-size:var(--sk-t-2);font-weight:500;border:0;background:transparent;color:var(--sk-ink-2);padding:5px 10px;border-radius:7px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--sk-surface);color:var(--sk-ink);box-shadow:var(--sk-e-hover)}
+
+/* ===== buttons ===== */
+.btn{font-weight:600;font-size:var(--sk-t-3);border-radius:var(--sk-r-ctl);padding:10px 16px;border:1px solid transparent;cursor:pointer;display:inline-flex;align-items:center;gap:8px;line-height:1;transition:transform var(--sk-d-quick) var(--sk-spring),background var(--sk-d-quick),box-shadow var(--sk-d-quick),opacity var(--sk-d-quick);white-space:nowrap}
+.btn:active{transform:scale(.97)}
+.btn:disabled{opacity:.45;cursor:default}
+.btn.primary{background:var(--sk-bill);color:var(--sk-on-bill)}
+.btn.primary:hover:not(:disabled){background:var(--sk-bill-hover)}
+.btn.ink{background:var(--sk-ink);color:var(--sk-ground)}
+.btn.quiet{background:var(--sk-surface);border-color:var(--sk-line);color:var(--sk-ink)}
+.btn.quiet:hover{background:var(--sk-surface-2)}
+.btn.bare{background:transparent;color:var(--sk-thread);padding-inline:6px}
+.btn.sm{padding:6px 10px;font-size:var(--sk-t-2);border-radius:8px}
+.btn.lg{padding:14px 22px;font-size:var(--sk-t-4);border-radius:14px}
+.btn svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.btn:focus-visible,.card:focus-visible,button:focus-visible{outline:2px solid var(--sk-thread);outline-offset:2px}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:var(--sk-t-2);font-weight:500;padding:6px 12px;border-radius:999px;border:1px solid var(--sk-line);background:var(--sk-surface);color:var(--sk-ink-2);cursor:pointer}
+.pill.on{background:var(--sk-ink);border-color:var(--sk-ink);color:var(--sk-ground)}
+
+/* ===== THE CARD LAYER ===== */
+#cards{position:fixed;inset:0;z-index:20;pointer-events:none;transition:opacity 300ms,filter 300ms}
+#app[data-stage="questions"] ~ #cards{opacity:.18;filter:blur(3px)}
+#app[data-stage="questions"] ~ #cards .card{pointer-events:none}
+.card{position:absolute;left:0;top:0;width:64px;height:64px;border-radius:var(--sk-r-chip);overflow:hidden;background:var(--sk-surface-2);box-shadow:var(--sk-ring-want);pointer-events:auto;cursor:pointer;opacity:1;
+  transition:left var(--sk-d-fly) var(--sk-spring),top var(--sk-d-fly) var(--sk-spring),width var(--sk-d-fly) var(--sk-spring),height var(--sk-d-fly) var(--sk-spring),border-radius var(--sk-d-fly) var(--sk-spring),box-shadow 200ms ease,opacity 240ms ease,filter 240ms ease;
+  will-change:left,top,width,height}
+#cards.instant .card{transition:box-shadow 200ms ease,opacity 240ms ease,filter 240ms ease}
+#cards.quick .card{transition-duration:var(--sk-d-quick)}
+.card.off{opacity:0;pointer-events:none}
+.card.flying{box-shadow:var(--sk-e-lift),var(--sk-ring-want);z-index:5}
+.card.must.flying{box-shadow:var(--sk-e-lift),var(--sk-ring-must)}
+.card.dragging{transition:none;box-shadow:var(--sk-e-sheet),var(--sk-ring-want);z-index:9;cursor:grabbing}
+.card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;user-select:none;-webkit-user-drag:none}
+.card .scrim{position:absolute;inset:0;background:var(--sk-scrim);opacity:0;transition:opacity 200ms;pointer-events:none}
+.card .name{position:absolute;left:10px;right:10px;bottom:9px;color:#fff;font-family:var(--sk-font-display);font-weight:600;font-size:12px;line-height:1.15;opacity:0;transition:opacity 200ms;text-shadow:0 1px 2px rgba(0,0,0,.35);pointer-events:none}
+.card .type{position:absolute;top:8px;left:8px;font-family:var(--sk-font-data);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:rgba(20,32,31,.55);padding:2px 6px;border-radius:999px;backdrop-filter:blur(6px);opacity:0;transition:opacity 200ms;pointer-events:none}
+.card .type.date{background:var(--sk-bill);color:var(--sk-on-bill)}
+.card .badge{position:absolute;top:6px;right:6px;width:18px;height:18px;border-radius:999px;display:none;place-items:center;color:#fff;background:var(--sk-ink);z-index:2}
+.card .badge svg{width:10px;height:10px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.card.must .badge.b-must{display:grid;background:var(--sk-bill);color:var(--sk-on-bill)}
+.card.locked .badge.b-lock{display:grid;background:var(--sk-ink)}
+.card.booked .badge.b-book{display:grid;background:var(--sk-ok)}
+.card.locked.must .badge.b-must{display:none}
+.card.booked .badge.b-lock,.card.booked .badge.b-must{display:none}
+.card.must{box-shadow:var(--sk-ring-must)}
+.card.locked{box-shadow:var(--sk-ring-locked)}
+.card.booked{box-shadow:var(--sk-ring-booked)}
+.card.dropped{filter:saturate(.15) brightness(.95);box-shadow:none}
+.card .act{position:absolute;right:8px;bottom:8px;width:28px;height:28px;border-radius:999px;background:var(--sk-surface);color:var(--sk-ink);border:0;display:grid;place-items:center;opacity:0;transform:scale(.8);transition:all var(--sk-d-quick) var(--sk-spring);cursor:pointer;z-index:3;box-shadow:var(--sk-e-hover)}
+.card .act svg{width:14px;height:14px;stroke:currentColor;stroke-width:2.4;fill:none;stroke-linecap:round}
+.card .act.x{right:auto;left:8px;top:8px;bottom:auto;width:22px;height:22px}
+.card .act.x svg{width:10px;height:10px}
+.card:hover .act{opacity:1;transform:none}
+.card[data-shape="tile"] .scrim,.card[data-shape="hero"] .scrim,.card[data-shape="tile"] .name,.card[data-shape="hero"] .name,.card[data-shape="tile"] .type,.card[data-shape="hero"] .type{opacity:1}
+.card[data-shape="hero"] .name{font-size:var(--sk-t-5);left:16px;right:16px;bottom:14px}
+.card[data-shape="hero"] .type{font-size:10px;top:12px;left:12px;padding:3px 8px}
+.card[data-shape="pin"] .badge{width:12px;height:12px;top:-2px;right:-2px}
+.card[data-shape="pin"] .badge svg{width:7px;height:7px}
+.card[data-shape="chip"] .badge{width:16px;height:16px;top:4px;right:4px}
+.card[data-shape="pin"] .act{display:none}
+.card[data-role="gallery"]:hover{box-shadow:var(--sk-e-hover),var(--sk-ring-want)}
+.card[data-role="gallery"].intray{filter:saturate(.35) brightness(.9)}
+.card[data-role="gallery"].intray .act.add{display:none}
+.card .meta{position:absolute;left:12px;right:12px;bottom:44px;display:none;gap:5px;flex-wrap:wrap;z-index:2;pointer-events:none}
+.card .meta span{font-family:var(--sk-font-data);font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:#fff;background:rgba(255,255,255,.18);backdrop-filter:blur(6px);padding:2px 6px;border-radius:999px}
+.card[data-shape="hero"] .meta{display:flex}
+
+/* slots */
+[data-slot]{position:relative}
+[data-slot].ghosted::before{content:"";position:absolute;inset:0;border-radius:inherit;background-image:var(--ghost);background-size:cover;background-position:center;opacity:.35;filter:saturate(.4)}
+.map .pslot.ghosted::before{opacity:.6;filter:saturate(.6)}
+.map .pslot.ghosted::after{border-width:1px;opacity:.5}
+[data-slot].ghosted::after{content:"";position:absolute;inset:-2px;border-radius:inherit;border:1.5px dashed var(--sk-ink-3);opacity:.7}
+[data-slot].vacant{background:transparent}
+
+/* ===== GLOBE ===== */
+#v-globe{display:grid;grid-template-columns:1fr 1fr;align-items:center}
+@media (max-width:900px){#v-globe{grid-template-columns:1fr;grid-template-rows:auto 1fr}}
+#globe-left{padding:var(--sk-s-8) var(--sk-s-9);position:relative;z-index:2;display:grid;gap:var(--sk-s-6);align-content:center;max-width:640px}
+#globe-left h1{font-size:clamp(2.6rem,5.2vw,4.4rem);font-weight:800;letter-spacing:-.035em;line-height:.95}
+#globe-left h1 em{font-style:normal;color:var(--sk-bill)}
+#globe-left .lede{font-size:var(--sk-t-4);color:var(--sk-ink-2);max-width:48ch;line-height:1.5}
+.search{position:relative}
+.search .inp{display:flex;align-items:center;gap:12px;background:var(--sk-surface);border-radius:999px;padding:14px 18px;box-shadow:var(--sk-e-hover);font-size:var(--sk-t-4)}
+.search .inp svg{width:18px;height:18px;stroke:var(--sk-ink-3);fill:none;stroke-width:2;stroke-linecap:round;flex:none}
+.search input{border:0;background:transparent;font:inherit;color:inherit;outline:0;flex:1;min-width:0}
+.search input::placeholder{color:var(--sk-ink-3)}
+.search .drop{position:absolute;left:0;right:0;top:calc(100% + 6px);background:var(--sk-surface);border-radius:16px;box-shadow:var(--sk-e-sheet);padding:6px;z-index:6;max-height:300px;overflow:auto}
+.search .drop button{display:flex;width:100%;text-align:left;gap:12px;align-items:center;border:0;background:transparent;padding:10px 12px;border-radius:10px;cursor:pointer}
+.search .drop button:hover,.search .drop button.sel{background:var(--sk-surface-2)}
+.search .drop b{font-weight:600}
+.search .drop small{color:var(--sk-ink-3);font-family:var(--sk-font-data);font-size:var(--sk-t-1)}
+.search .drop .ok{margin-left:auto;font-family:var(--sk-font-data);font-size:10px;color:var(--sk-ok);letter-spacing:.06em;text-transform:uppercase}
+.dates{display:grid;gap:10px}
+.dates .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.dates .di{display:flex;align-items:center;gap:8px;background:var(--sk-surface);border:1px solid var(--sk-line);border-radius:var(--sk-r-ctl);padding:8px 12px;font-family:var(--sk-font-data);font-size:var(--sk-t-2)}
+.dates .di input{border:0;background:transparent;font:inherit;color:inherit;outline:0}
+.dates .len{font-family:var(--sk-font-data);font-size:var(--sk-t-2);color:var(--sk-ink-3)}
+.party{display:flex;gap:8px;flex-wrap:wrap}
+#globe-right{position:relative;height:100%;min-height:420px}
+#globe{position:absolute;inset:0;width:100%;height:100%;display:block}
+#globe-feat{position:absolute;inset:0;pointer-events:none}
+#globe-feat .fslot{position:absolute;width:64px;height:64px;border-radius:var(--sk-r-chip);transform:translate(-50%,-50%);pointer-events:none}
+.feas{display:flex;align-items:center;gap:10px;font-size:var(--sk-t-2);color:var(--sk-ink-2);background:var(--sk-surface);border-radius:12px;padding:10px 12px;border:1px solid var(--sk-line)}
+.feas i{width:8px;height:8px;border-radius:999px;background:var(--sk-ok);flex:none}
+.feas.tight i{background:var(--sk-warn)}
+.go{display:flex;align-items:center;gap:var(--sk-s-4)}
+.go .hint{font-size:var(--sk-t-2);color:var(--sk-ink-3)}
+
+/* ===== BOARD ===== */
+#v-board{display:grid;grid-template-columns:minmax(300px,34%) 1fr;grid-template-rows:1fr auto;grid-template-areas:"map shelves" "tray tray"}
+@media (max-width:900px){#v-board{grid-template-columns:1fr;grid-template-rows:38vh 1fr auto;grid-template-areas:"map" "shelves" "tray"}}
+#board-map{grid-area:map;position:relative;border-right:1px solid var(--sk-line);background:color-mix(in srgb,var(--sk-thread-soft) 45%,var(--sk-ground));overflow:hidden}
+#board-shelves{grid-area:shelves;overflow:auto;padding:var(--sk-s-5) var(--sk-s-6) var(--sk-s-6);display:grid;gap:var(--sk-s-6);align-content:start;position:relative;z-index:1}
+.board-h{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--sk-s-4);flex-wrap:wrap}
+.board-h h2{font-size:var(--sk-t-7);font-weight:700;letter-spacing:-.02em}
+.board-h p{color:var(--sk-ink-2);max-width:60ch}
+.shelf{display:grid;gap:10px}
+.shelf-h{display:flex;align-items:baseline;justify-content:space-between;gap:var(--sk-s-4)}
+.shelf-h h3{font-size:var(--sk-t-5);font-weight:600}
+.shelf-h .why{font-size:var(--sk-t-2);color:var(--sk-ink-3);font-family:var(--sk-font-data)}
+.shelf-row{display:flex;gap:12px;overflow-x:auto;overflow-y:hidden;padding:4px 4px 10px;scrollbar-width:thin;scroll-snap-type:x proximity}
+.shelf-row .tslot{flex:none;width:156px;aspect-ratio:4/5;border-radius:var(--sk-r-tile);scroll-snap-align:start;background:var(--sk-surface-2)}
+.shelf-row .tslot.wide{width:210px;aspect-ratio:5/4}
+.shelf-row .tslot.tall{width:140px;aspect-ratio:3/4.4}
+.shelf.empty .shelf-row{min-height:60px;align-items:center;color:var(--sk-ink-3);font-size:var(--sk-t-2);padding-left:6px}
+.sugg{display:flex;gap:10px;align-items:center;background:var(--sk-surface);border:1px solid var(--sk-line);border-radius:12px;padding:8px 12px;font-size:var(--sk-t-2);color:var(--sk-ink-2);width:max-content;max-width:100%}
+.sugg .sslot{width:34px;height:34px;border-radius:var(--sk-r-chip);flex:none}
+.sugg b{color:var(--sk-ink);font-weight:500}
+
+/* map (shared) */
+.map{position:absolute;inset:0}
+.map svg{position:absolute;inset:0;width:100%;height:100%}
+.map .land{fill:var(--sk-surface);stroke:var(--sk-line);stroke-width:1.2;filter:drop-shadow(0 8px 18px rgba(20,32,31,.12))}
+:root[data-theme="dark"] .map .land{fill:var(--sk-surface-2)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .map .land{fill:var(--sk-surface-2)}}
+.map .grat{stroke:var(--sk-thread);stroke-opacity:.14;stroke-width:.6;fill:none}
+.map .thread{fill:none;stroke:var(--sk-thread);stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.map .thread.halo{stroke:var(--sk-surface);stroke-width:7;stroke-opacity:.9}
+.map .thread.proposed{stroke:var(--sk-ink-3);stroke-dasharray:2 4;stroke-width:2.5}
+.map .conflict{fill:none;stroke:var(--sk-bad);stroke-width:2.5;stroke-dasharray:4 5;stroke-linecap:round}
+.map .base{fill:var(--sk-surface);stroke:var(--sk-thread);stroke-width:3}
+.map .lbl{font-family:var(--sk-font-data);font-size:9.5px;fill:var(--sk-ink-2);letter-spacing:.04em;text-transform:uppercase;pointer-events:none}
+.map .lbl.big{font-family:var(--sk-font-display);font-size:14px;font-weight:700;letter-spacing:-.01em;text-transform:none;fill:var(--sk-ink)}
+.map .legs{font-family:var(--sk-font-data);font-size:8.5px;fill:var(--sk-thread)}
+.map .pins{position:absolute;inset:0;pointer-events:none}
+.map .pslot{position:absolute;width:26px;height:26px;border-radius:999px;transform:translate(-50%,-50%);pointer-events:none}
+.map .pslot.hover{width:150px;height:110px;border-radius:var(--sk-r-tile);z-index:3}
+.map .stick{position:absolute;transform:translate(-50%,-50%);pointer-events:none;opacity:.95;filter:drop-shadow(0 2px 4px rgba(0,0,0,.12))}
+.map .maptitle{position:absolute;left:16px;top:14px;display:grid;gap:2px;pointer-events:none}
+.map .maptitle b{font-family:var(--sk-font-display);font-weight:700;font-size:var(--sk-t-5);letter-spacing:-.01em}
+.map .maptitle span{font-family:var(--sk-font-data);font-size:var(--sk-t-1);color:var(--sk-ink-3)}
+.map .legend{position:absolute;left:16px;bottom:14px;display:grid;gap:4px;font-family:var(--sk-font-data);font-size:10px;color:var(--sk-ink-3);pointer-events:none}
+.map .legend div{display:flex;align-items:center;gap:8px}
+.map .legend svg{width:34px;height:8px;position:static}
+
+/* tray */
+#tray-wrap{grid-area:tray;background:var(--sk-ink);color:var(--sk-ground);padding:12px 20px 16px;position:relative;z-index:2;border-top:1px solid rgba(255,255,255,.08)}
+#tray-wrap .card-scope{--sk-surface:#14201F}
+.meter{display:grid;grid-template-columns:1fr auto;gap:var(--sk-s-4);align-items:center;margin-bottom:10px}
+.meter .bar{height:6px;border-radius:999px;background:rgba(255,255,255,.12);position:relative;overflow:visible}
+.meter .bar i{position:absolute;inset:0 auto 0 0;border-radius:999px;background:var(--sk-ok);width:0;transition:width var(--sk-d-fly) var(--sk-spring),background var(--sk-d-quick);max-width:100%}
+.meter .bar b{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--sk-ground);left:100%;transform:translateX(-1px)}
+.meter .txt{font-size:var(--sk-t-2);color:rgba(255,255,255,.7);white-space:nowrap}
+.meter .txt strong{color:#fff;font-weight:600}
+.ribbon{position:relative;height:34px;margin:0 2px 8px}
+.ribbon .track{position:absolute;left:0;right:0;top:22px;height:2px;background:rgba(255,255,255,.18)}
+.ribbon .d{position:absolute;top:26px;transform:translateX(-50%);font-family:var(--sk-font-data);font-size:9px;color:rgba(255,255,255,.45);white-space:nowrap}
+.ribbon .d.first,.ribbon .d.last{color:rgba(255,255,255,.8)}
+.ribbon .peg{position:absolute;top:0;transform:translateX(-50%);display:grid;justify-items:center;gap:0}
+.ribbon .peg .pslot{width:22px;height:22px;border-radius:999px;position:relative}
+.ribbon .peg s{text-decoration:none;display:block;width:2px;height:6px;background:var(--sk-bill)}
+.ribbon .peg.soft s{background:rgba(255,255,255,.5)}
+.ribbon .peg.soft .pslot{outline:1.5px dashed rgba(255,255,255,.5);outline-offset:2px}
+#tray{display:flex;align-items:flex-end;gap:6px;height:72px;min-width:0;border-radius:10px}
+#tray.over{outline:2px dashed rgba(255,255,255,.35);outline-offset:4px}
+#tray .tslot{flex:1 1 0;min-width:0;max-width:96px;height:56px;border-radius:var(--sk-r-chip);transition:flex-grow var(--sk-d-quick) var(--sk-ease-out),height var(--sk-d-quick) var(--sk-ease-out),max-width var(--sk-d-quick) var(--sk-ease-out)}
+#tray .empty{color:rgba(255,255,255,.45);font-size:var(--sk-t-2);align-self:center;display:flex;align-items:center;gap:10px}
+#tray .empty i{width:34px;height:34px;border-radius:var(--sk-r-chip);border:1.5px dashed rgba(255,255,255,.35);display:inline-block}
+.tray-foot{display:flex;justify-content:space-between;align-items:center;gap:var(--sk-s-4);margin-top:10px;flex-wrap:wrap}
+.tray-foot .hint{font-size:var(--sk-t-2);color:rgba(255,255,255,.55)}
+.tray-foot .hint b{color:rgba(255,255,255,.85);font-weight:500}
+
+/* ===== QUESTIONS ===== */
+#v-questions{position:fixed;inset:56px 0 0 0;z-index:30;display:grid;place-items:center;background:color-mix(in srgb,var(--sk-ground) 55%,transparent);backdrop-filter:blur(3px)}
+.qcard{width:min(720px,94vw);background:var(--sk-surface);border-radius:var(--sk-r-sheet);box-shadow:var(--sk-e-sheet);padding:var(--sk-s-7);display:grid;gap:var(--sk-s-5);position:relative;overflow:hidden}
+.qcard .prog{display:flex;gap:6px;align-items:center}
+.qcard .prog i{width:8px;height:8px;border-radius:999px;background:var(--sk-line)}
+.qcard .prog i.on{background:var(--sk-bill)}
+.qcard .prog i.done{background:var(--sk-ink)}
+.qcard .prog span{margin-left:auto;font-family:var(--sk-font-data);font-size:var(--sk-t-1);color:var(--sk-ink-3)}
+.qcard h2{font-size:var(--sk-t-6);font-weight:600}
+.qcard p{color:var(--sk-ink-2);font-size:var(--sk-t-4);max-width:56ch;line-height:1.5}
+.qopts{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.qopt{text-align:left;border:1.5px solid var(--sk-line);background:var(--sk-surface-2);border-radius:var(--sk-r-tile);padding:14px;cursor:pointer;display:grid;gap:4px;transition:all var(--sk-d-quick)}
+.qopt:hover{border-color:var(--sk-ink)}
+.qopt b{font-weight:600;font-size:var(--sk-t-3)}
+.qopt small{color:var(--sk-ink-3);font-family:var(--sk-font-data);font-size:var(--sk-t-1)}
+.qopt.img{padding:0;overflow:hidden;grid-template-rows:120px auto}
+.qopt.img .ph{background-size:cover;background-position:center}
+.qopt.img .tx{padding:12px 14px;display:grid;gap:2px}
+.qslider{display:grid;gap:8px}
+.qslider input{width:100%;accent-color:var(--sk-bill)}
+.qslider .ends{display:flex;justify-content:space-between;font-family:var(--sk-font-data);font-size:var(--sk-t-1);color:var(--sk-ink-3);letter-spacing:.06em;text-transform:uppercase}
+.qfoot{display:flex;justify-content:space-between;align-items:center;gap:var(--sk-s-4)}
+.qmini{position:absolute;right:-30px;top:-30px;width:180px;height:180px;opacity:.55;pointer-events:none}
+
+/* ===== WORKSPACE ===== */
+#v-work{display:grid;grid-template-columns:1fr minmax(320px,34%);grid-template-rows:1fr}
+@media (max-width:900px){#v-work{grid-template-columns:1fr;grid-template-rows:1fr 42vh}}
+#dash{position:relative;display:grid;grid-template-rows:auto minmax(200px,38%) 1fr auto;min-height:0;border-right:1px solid var(--sk-line)}
+#dash-top{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--sk-line);background:var(--sk-surface);flex-wrap:wrap;position:relative;z-index:2}
+.tabs{display:flex;gap:8px;flex:1;min-width:0;overflow:auto}
+.tab{flex:1 1 180px;min-width:160px;text-align:left;background:var(--sk-surface-2);border:1.5px solid var(--sk-line);border-radius:12px;padding:8px 12px;cursor:pointer;display:grid;gap:2px;transition:all var(--sk-d-quick)}
+.tab[aria-selected="true"]{background:var(--sk-surface);border-color:var(--sk-ink);box-shadow:var(--sk-e-hover)}
+.tab .th{font-family:var(--sk-font-display);font-weight:600;font-size:var(--sk-t-4);line-height:1.1;display:flex;gap:8px;align-items:center}
+.tab .th i{width:8px;height:8px;border-radius:999px;background:var(--acc)}
+.tab .tr{font-size:var(--sk-t-1);color:var(--sk-ink-2);font-family:var(--sk-font-data)}
+.tab .tr b{color:var(--sk-bad);font-weight:500}
+#chosen-h{display:none;align-items:center;gap:12px;flex:1}
+#chosen-h h2{font-size:var(--sk-t-5);font-weight:700}
+#chosen-h .sub{font-family:var(--sk-font-data);font-size:var(--sk-t-1);color:var(--sk-ink-3)}
+#v-work[data-mode="refine"] .tabs{display:none}
+#v-work[data-mode="refine"] #chosen-h{display:flex}
+#dash-map{position:relative;background:color-mix(in srgb,var(--sk-thread-soft) 45%,var(--sk-ground));border-bottom:1px solid var(--sk-line);overflow:hidden}
+#dash-days{overflow:auto;padding:14px 16px;display:flex;gap:12px;align-items:stretch;scroll-snap-type:x proximity;position:relative}
+#dash-days.compare{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(200px,1fr)}
+.day{flex:none;width:224px;background:var(--sk-surface);border:1px solid var(--sk-line);border-radius:var(--sk-r-tile);padding:12px;display:grid;gap:8px;align-content:start;scroll-snap-align:start;transition:border-color var(--sk-d-quick),box-shadow var(--sk-d-quick);position:relative}
+.day.over{border-color:var(--sk-thread);box-shadow:0 0 0 3px var(--sk-thread-soft)}
+.day.changed{animation:flash 900ms ease}
+@keyframes flash{0%{box-shadow:0 0 0 3px var(--sk-bill-soft);border-color:var(--sk-bill)}100%{box-shadow:none}}
+.day-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;cursor:pointer}
+.day-h h4{font-size:var(--sk-t-4);font-weight:600}
+.day-h .base{font-size:var(--sk-t-2);color:var(--sk-ink-2)}
+.day-h .d{font-family:var(--sk-font-data);font-size:10px;color:var(--sk-ink-3);white-space:nowrap}
+.day .stay{display:flex;align-items:center;gap:8px;font-family:var(--sk-font-data);font-size:10px;color:var(--sk-ink-3)}
+.day .stay i{width:10px;height:10px;border-radius:999px;background:var(--sk-surface);border:2.5px solid var(--sk-thread);display:inline-block}
+.slot{display:grid;grid-template-columns:44px 1fr;gap:10px;align-items:center;border-radius:10px;padding:2px}
+.slot .dslot{width:44px;height:44px;border-radius:var(--sk-r-chip)}
+.slot .t{font-size:var(--sk-t-2);font-weight:500;line-height:1.2;cursor:pointer}
+.slot .t:hover{color:var(--sk-thread)}
+.slot .m{font-family:var(--sk-font-data);font-size:10px;color:var(--sk-ink-3);margin-top:2px}
+.slot .tools{display:flex;gap:4px;margin-top:4px}
+.slot .tools button{border:0;background:var(--sk-surface-2);color:var(--sk-ink-2);border-radius:6px;padding:2px 6px;font-size:10px;font-family:var(--sk-font-data);cursor:pointer;display:inline-flex;align-items:center;gap:4px}
+.slot .tools button:hover{background:var(--sk-line)}
+.slot .tools button.on{background:var(--sk-ink);color:var(--sk-ground)}
+.slot .tools svg{width:9px;height:9px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round}
+.transit{display:grid;grid-template-columns:44px 1fr;gap:10px;align-items:center;height:20px}
+.transit svg{width:44px;height:20px;display:block}
+.transit .m{font-family:var(--sk-font-data);font-size:10px;color:var(--sk-thread)}
+.flag{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:500;padding:2px 7px;border-radius:999px;margin-top:3px;font-family:var(--sk-font-data)}
+.flag.warn{background:var(--sk-warn-soft);color:#6f4d0a}
+.flag.bad{background:var(--sk-bad-soft);color:#7a2618}
+.flag.ok{background:var(--sk-ok-soft);color:#1f5a35}
+:root[data-theme="dark"] .flag{color:var(--sk-ink)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .flag{color:var(--sk-ink)}}
+.free{border:1.5px dashed var(--sk-line);border-radius:var(--sk-r-chip);padding:8px;text-align:center;font-size:var(--sk-t-1);color:var(--sk-ink-3);font-family:var(--sk-font-data)}
+.day.endday{background:transparent;border-style:dashed;display:grid;place-content:center;text-align:center;color:var(--sk-ink-3);font-family:var(--sk-font-data);font-size:var(--sk-t-1);width:140px}
+.day.endday b{font-family:var(--sk-font-display);font-size:var(--sk-t-5);color:var(--sk-ink);display:block;margin-bottom:6px}
+.leftout{flex:none;width:224px;display:grid;gap:8px;align-content:start;padding:12px;border-radius:var(--sk-r-tile);background:var(--sk-surface-2);border:1px dashed var(--sk-line)}
+.leftout h4{font-size:var(--sk-t-3);font-weight:600;display:flex;justify-content:space-between}
+.leftout h4 span{font-family:var(--sk-font-data);font-size:10px;color:var(--sk-ink-3);font-weight:400}
+.leftout .lo{display:grid;grid-template-columns:36px 1fr;gap:8px;align-items:center}
+.leftout .loslot{width:36px;height:36px;border-radius:var(--sk-r-chip)}
+.leftout .lo .t{font-size:var(--sk-t-1);font-weight:500;line-height:1.2}
+.leftout .lo .r{font-family:var(--sk-font-data);font-size:9.5px;color:var(--sk-ink-3);line-height:1.3}
+.leftout .lo button{border:0;background:transparent;color:var(--sk-thread);font-size:10px;font-family:var(--sk-font-data);padding:0;cursor:pointer;text-align:left;margin-top:2px}
+#dash-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:1px;background:var(--sk-line);border-top:1px solid var(--sk-line);position:relative;z-index:2}
+.stat{background:var(--sk-surface);padding:8px 12px;display:grid;gap:1px}
+.stat .v{font-family:var(--sk-font-display);font-weight:600;font-size:var(--sk-t-5);letter-spacing:-.02em;line-height:1;font-variant-numeric:tabular-nums;transition:color 300ms}
+.stat .v small{font-family:var(--sk-font-data);font-size:10px;color:var(--sk-ink-3);letter-spacing:0;margin-left:3px}
+.stat .k{font-family:var(--sk-font-data);font-size:9.5px;letter-spacing:var(--sk-track-label);text-transform:uppercase;color:var(--sk-ink-3)}
+.stat.warn .v{color:var(--sk-warn)}
+.stat.bad .v{color:var(--sk-bad)}
+.stat.ok .v{color:var(--sk-ok)}
+.stat .v.bump{animation:bump 500ms var(--sk-spring)}
+@keyframes bump{30%{transform:scale(1.12)}}
+
+/* variants drawer (refine mode) */
+#variants{display:none;gap:10px;padding:10px 16px;border-top:1px dashed var(--sk-line);background:var(--sk-surface-2);overflow:auto;align-items:center;position:relative;z-index:2}
+#v-work[data-mode="refine"] #variants{display:flex}
+#variants .vh{font-family:var(--sk-font-data);font-size:var(--sk-t-1);letter-spacing:var(--sk-track-label);text-transform:uppercase;color:var(--sk-ink-3);flex:none;width:90px;line-height:1.3}
+.vday{flex:none;display:flex;align-items:center;gap:8px;background:var(--sk-surface);border:1px solid var(--sk-line);border-radius:10px;padding:6px 10px 6px 6px;cursor:grab}
+.vday .vslots{display:flex;gap:3px}
+.vday .vslot{width:26px;height:26px;border-radius:6px}
+.vday .vt{display:grid;gap:1px}
+.vday .vt b{font-size:var(--sk-t-1);font-weight:600}
+.vday .vt span{font-family:var(--sk-font-data);font-size:9px;color:var(--sk-ink-3)}
+.vday button{border:0;background:var(--sk-surface-2);border-radius:6px;padding:4px 7px;font-size:10px;font-family:var(--sk-font-data);cursor:pointer;color:var(--sk-thread)}
+.vday.pricing{outline:2px solid var(--sk-ink-3)}
+.price{position:absolute;background:var(--sk-ink);color:var(--sk-ground);font-family:var(--sk-font-data);font-size:10px;padding:5px 8px;border-radius:8px;pointer-events:none;z-index:30;white-space:nowrap;box-shadow:var(--sk-e-lift)}
+
+/* chat */
+#chat{display:grid;grid-template-rows:auto 1fr auto;min-height:0;background:var(--sk-surface);position:relative;z-index:2}
+#chat-h{padding:12px 16px;border-bottom:1px solid var(--sk-line);display:flex;align-items:center;gap:10px}
+#chat-h b{font-family:var(--sk-font-display);font-weight:700;font-size:var(--sk-t-4)}
+#chat-h span{font-family:var(--sk-font-data);font-size:var(--sk-t-1);color:var(--sk-ink-3)}
+#chat-h .live{width:8px;height:8px;border-radius:999px;background:var(--sk-ok);box-shadow:0 0 0 3px var(--sk-ok-soft)}
+#chat-log{overflow:auto;padding:16px;display:grid;gap:10px;align-content:start}
+.msg{font-size:var(--sk-t-3);line-height:1.4;padding:10px 14px;border-radius:14px;max-width:90%;animation:rise 360ms var(--sk-ease-out)}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}}
+.msg.user{background:var(--sk-ink);color:var(--sk-ground);justify-self:end;border-bottom-right-radius:4px}
+.msg.planner{background:var(--sk-surface-2);border-bottom-left-radius:4px}
+.msg.sys{background:transparent;color:var(--sk-ink-3);font-family:var(--sk-font-data);font-size:var(--sk-t-1);padding:2px 4px;justify-self:center;text-align:center}
+.msg .undo{margin-left:8px;color:var(--sk-thread);font-weight:500;border:0;background:transparent;cursor:pointer;font:inherit;padding:0}
+.msg .delta{display:flex;gap:10px;flex-wrap:wrap;font-family:var(--sk-font-data);font-size:10px;color:var(--sk-ink-3);margin-top:6px}
+.msg .qa{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.msg .qa button{border:1px solid var(--sk-line);background:var(--sk-surface);border-radius:999px;padding:4px 10px;font-size:var(--sk-t-1);cursor:pointer;color:var(--sk-ink)}
+.msg .qa button:hover{border-color:var(--sk-ink)}
+.msg.typing i{display:inline-block;width:6px;height:6px;border-radius:999px;background:var(--sk-ink-3);margin-right:3px;animation:blink 1s infinite}
+.msg.typing i:nth-child(2){animation-delay:.2s}.msg.typing i:nth-child(3){animation-delay:.4s}
+@keyframes blink{50%{opacity:.2}}
+.refchip{display:inline-flex;align-items:center;gap:6px;background:var(--sk-surface);border:1px solid var(--sk-line);border-radius:999px;padding:2px 8px 2px 2px;font-size:var(--sk-t-2);font-weight:500;vertical-align:middle;color:var(--sk-ink);white-space:nowrap}
+.refchip .rslot,.refchip img{width:20px;height:20px;border-radius:999px;object-fit:cover;display:inline-block}
+.msg.user .refchip{background:rgba(255,255,255,.12);border-color:transparent;color:#fff}
+#composer{padding:12px 16px;border-top:1px solid var(--sk-line);display:grid;gap:8px}
+#chips{display:flex;gap:6px;flex-wrap:wrap;min-height:0}
+#chips:empty{display:none}
+#chips .refchip button{border:0;background:transparent;padding:0 2px;cursor:pointer;color:var(--sk-ink-3);font-size:12px;line-height:1}
+.cbox{display:flex;align-items:center;gap:8px;background:var(--sk-surface-2);border:1px solid var(--sk-line);border-radius:14px;padding:6px 6px 6px 12px}
+.cbox input{border:0;background:transparent;font:inherit;color:inherit;outline:0;flex:1;min-width:0;font-size:var(--sk-t-3)}
+.cbox input::placeholder{color:var(--sk-ink-3)}
+.cbox .send{width:32px;height:32px;border-radius:10px;background:var(--sk-bill);border:0;display:grid;place-items:center;color:var(--sk-on-bill);cursor:pointer;flex:none}
+.cbox .send svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.quick{display:flex;gap:6px;flex-wrap:wrap}
+.quick button{border:1px solid var(--sk-line);background:var(--sk-surface);border-radius:999px;padding:4px 10px;font-size:var(--sk-t-1);cursor:pointer;color:var(--sk-ink-2)}
+.quick button:hover{color:var(--sk-ink);border-color:var(--sk-ink)}
+
+/* generating overlay */
+#gen{position:absolute;left:16px;bottom:16px;z-index:6;background:var(--sk-ink);color:var(--sk-ground);border-radius:14px;padding:10px 14px;display:flex;align-items:center;gap:12px;font-size:var(--sk-t-2);box-shadow:var(--sk-e-lift);max-width:min(420px,80%)}
+#gen i{width:10px;height:10px;border-radius:999px;background:var(--sk-bill);animation:blink 1s infinite;flex:none}
+#gen .mono{color:rgba(255,255,255,.6)}
+
+/* ===== EXPORT ===== */
+#v-export{z-index:8;background:var(--sk-ground);overflow:auto;padding:var(--sk-s-7) var(--sk-s-6)}
+.exp{max-width:1080px;margin:0 auto;display:grid;gap:var(--sk-s-6)}
+.exp-h{display:flex;justify-content:space-between;align-items:flex-end;gap:var(--sk-s-4);flex-wrap:wrap}
+.exp-h h2{font-size:var(--sk-t-7);font-weight:700;letter-spacing:-.02em}
+.exp-h p{color:var(--sk-ink-2)}
+.exp-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:var(--sk-s-6)}
+@media (max-width:900px){.exp-grid{grid-template-columns:1fr}}
+.paper{background:var(--sk-surface);border-radius:var(--sk-r-hero);box-shadow:var(--sk-e-sheet);padding:var(--sk-s-7);display:grid;gap:var(--sk-s-5);position:relative;overflow:hidden}
+.paper .kick{font-family:var(--sk-font-data);font-size:var(--sk-t-1);letter-spacing:var(--sk-track-label);text-transform:uppercase;color:var(--sk-bill)}
+.paper h3{font-size:var(--sk-t-8);font-weight:800;letter-spacing:-.03em;line-height:.95}
+.paper .sub{font-family:var(--sk-font-data);font-size:var(--sk-t-2);color:var(--sk-ink-3)}
+.paper .pmap{height:300px;position:relative;border-radius:var(--sk-r-tile);background:color-mix(in srgb,var(--sk-thread-soft) 45%,var(--sk-ground));overflow:hidden}
+.paper .pday{display:grid;grid-template-columns:70px 1fr;gap:12px;padding:10px 0;border-top:1px solid var(--sk-line-2)}
+.paper .pday .n{font-family:var(--sk-font-display);font-weight:700;font-size:var(--sk-t-5);line-height:1}
+.paper .pday .n small{display:block;font-family:var(--sk-font-data);font-size:9.5px;font-weight:400;color:var(--sk-ink-3);margin-top:3px;letter-spacing:.04em}
+.paper .pday .items{display:flex;gap:6px;flex-wrap:wrap}
+.paper .pday .pi{display:flex;align-items:center;gap:6px;background:var(--sk-surface-2);border-radius:999px;padding:2px 10px 2px 2px;font-size:var(--sk-t-1)}
+.paper .pday .pi img{width:22px;height:22px;border-radius:999px;object-fit:cover}
+.paper .pday .pi.must{background:var(--sk-bill-soft)}
+.paper .brush{position:absolute;right:-40px;top:-30px;width:220px;opacity:.9;mix-blend-mode:multiply;pointer-events:none}
+.side{display:grid;gap:var(--sk-s-4);align-content:start}
+.box{background:var(--sk-surface);border:1px solid var(--sk-line);border-radius:var(--sk-r-tile);padding:var(--sk-s-5);display:grid;gap:12px}
+.box h4{font-size:var(--sk-t-4);font-weight:600;display:flex;justify-content:space-between;align-items:baseline}
+.box h4 span{font-family:var(--sk-font-data);font-size:var(--sk-t-1);color:var(--sk-ink-3);font-weight:400}
+.book{display:grid;grid-template-columns:30px 1fr auto;gap:10px;align-items:center;font-size:var(--sk-t-2)}
+.book img{width:30px;height:30px;border-radius:8px;object-fit:cover}
+.book .w{font-family:var(--sk-font-data);font-size:9.5px;color:var(--sk-ink-3)}
+.book .w.hot{color:var(--sk-bad)}
+.book button{border:1px solid var(--sk-line);background:var(--sk-surface);border-radius:999px;padding:4px 10px;font-size:10px;cursor:pointer;font-family:var(--sk-font-data);color:var(--sk-ink)}
+.book button.done{background:var(--sk-ok);border-color:var(--sk-ok);color:#fff}
+.ready{height:6px;border-radius:999px;background:var(--sk-line-2);overflow:hidden}
+.ready i{display:block;height:100%;background:var(--sk-ok);transition:width var(--sk-d-fly) var(--sk-spring)}
+.share{display:flex;gap:8px;align-items:center;background:var(--sk-surface-2);border-radius:10px;padding:8px 10px;font-family:var(--sk-font-data);font-size:var(--sk-t-1);color:var(--sk-ink-2)}
+.share input{border:0;background:transparent;font:inherit;color:inherit;flex:1;min-width:0;outline:0}
+
+/* toasts */
+#toasts{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:40;display:grid;gap:8px;pointer-events:none}
+.toast{background:var(--sk-ink);color:var(--sk-ground);border-radius:12px;padding:10px 14px;font-size:var(--sk-t-2);box-shadow:var(--sk-e-lift);animation:rise 300ms var(--sk-ease-out);display:flex;gap:10px;align-items:center;pointer-events:auto}
+.toast .mono{color:rgba(255,255,255,.6);font-size:10px}
+.toast button{border:0;background:transparent;color:var(--sk-bill);font-weight:600;cursor:pointer;padding:0}
+
+/* detail hero popover */
+#hero{position:fixed;z-index:25;width:340px;background:var(--sk-surface);border-radius:var(--sk-r-hero);box-shadow:var(--sk-e-sheet);padding:10px;display:grid;gap:10px;pointer-events:auto}
+#hero .hslot{width:100%;height:220px;border-radius:14px}
+#hero .hb{padding:2px 6px 6px;display:grid;gap:8px}
+#hero .hb p{font-size:var(--sk-t-2);color:var(--sk-ink-2);line-height:1.45}
+#hero .hb .row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+#hero .hb .row .btn{margin-left:auto}
+#hero .tag{font-family:var(--sk-font-data);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--sk-ink-3);background:var(--sk-surface-2);padding:3px 8px;border-radius:999px}
+
+/* express lane */
+.express{position:absolute;right:20px;bottom:18px;z-index:3}
+
+@media (prefers-reduced-motion:reduce){.card{transition:none}.msg,.toast{animation:none}}
+
+/* print */
+@media print{
+  #app,#deco,#cards,#toasts{display:none!important}
+  body{overflow:visible;background:#fff}
+  #print{display:block!important}
+}
+#print{display:none}
+
+</style>
+</head>
+<body>
+
+
+<div id="deco" aria-hidden="true">
+  <img class="s1" src="assets/p1_04_orange-watercolor-splotch-shape.png" alt="">
+  <img class="s2" src="assets/p1_02_pink-watercolor-splatter.png" alt="">
+  <img class="s3" src="assets/p1_11_watercolor-splash-splatter-pastel.png" alt="">
+  <img class="s4" src="assets/p4_02_watercolor-splash-clip-art.png" alt="">
+</div>
+
+<div id="app" data-stage="globe">
+  <header id="topbar">
+    <div class="logo" title="Gander">
+      <svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="13" fill="var(--sk-ink)"/><path d="M8 17c3-6 8-8 12-8-1 4-4 8-9 9l-3-1z" fill="var(--sk-ground)"/><circle cx="17.5" cy="11.5" r="1.3" fill="var(--sk-bill)"/></svg>
+      Gander
+    </div>
+    <nav id="crumbs" aria-label="Stages">
+      <button data-go="globe" class="on"><i></i>Where &amp; when</button>
+      <button data-go="board" disabled><i></i>Board</button>
+      <button data-go="options" disabled><i></i>Options</button>
+      <button data-go="refine" disabled><i></i>Refine</button>
+      <button data-go="export" disabled><i></i>Export</button>
+    </nav>
+    <div id="tripline"></div>
+    <div class="seg" role="group" aria-label="Theme" style="margin-left:12px">
+      <button type="button" data-theme="sys" aria-pressed="true">Auto</button>
+      <button type="button" data-theme="light" aria-pressed="false">Light</button>
+      <button type="button" data-theme="dark" aria-pressed="false">Dark</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- ===== 1 · GLOBE ===== -->
+    <section id="v-globe">
+      <div id="globe-left">
+        <h1>Where are we <em>going</em>?</h1>
+        <p class="lede">Pick a place and a stretch of days. Then you'll build the trip out of photographs, and Gander will turn the pile into a plan.</p>
+        <div class="search">
+          <label class="inp"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="where" type="text" placeholder="A country, a region, a city… try Sri Lanka" autocomplete="off"></label>
+          <div class="drop" id="where-drop" hidden></div>
+        </div>
+        <div class="dates">
+          <div class="row">
+            <label class="di">from <input id="d-start" type="date" value="2024-08-10"></label>
+            <label class="di">to <input id="d-end" type="date" value="2024-08-24"></label>
+            <span class="len" id="d-len"></span>
+          </div>
+          <div class="row">
+            <div class="seg" id="d-shape" role="group" aria-label="Date shape"><button type="button" aria-pressed="true">Exact</button><button type="button" aria-pressed="false">± 3 days</button><button type="button" aria-pressed="false">A month</button><button type="button" aria-pressed="false">Not sure</button></div>
+            <div class="party" id="party"><button class="pill">Solo</button><button class="pill on">Couple</button><button class="pill">Friends</button><button class="pill">Family with kids</button></div>
+          </div>
+        </div>
+        <div class="feas" id="feas"><i></i><span>Fourteen nights is the classic Sri Lanka loop — enough for the hills, a safari and the coast.</span></div>
+        <div class="go"><button class="btn primary lg" id="go-board" disabled>Start the board <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button><span class="hint">or tap a photo on the globe</span></div>
+      </div>
+      <div id="globe-right">
+        <canvas id="globe"></canvas>
+        <div id="globe-feat"></div>
+        <button class="btn quiet sm express" id="express">Express: Sri Lanka, 14 days, go →</button>
+      </div>
+    </section>
+
+    <!-- ===== 2 · BOARD ===== -->
+    <section id="v-board" hidden>
+      <div id="board-map" class="map"></div>
+      <div id="board-shelves"></div>
+      <div id="tray-wrap">
+        <div class="meter"><div class="bar"><i id="meter-fill"></i><b title="days you have"></b></div><div class="txt" id="meter-txt"></div></div>
+        <div class="ribbon" id="ribbon"></div>
+        <div id="tray"></div>
+        <div class="tray-foot">
+          <span class="hint"><b>Tap</b> a photo to add · <b>tap again</b> in the tray for must-have · <b>drag up</b> to remove · <b>drag onto the calendar</b> to peg a day</span>
+          <button class="btn primary" id="plan-it" disabled>Plan it <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 4 · WORKSPACE (options → refine) ===== -->
+    <section id="v-work" hidden data-mode="options">
+      <div id="dash">
+        <div id="dash-top">
+          <div class="tabs" id="tabs" role="tablist"></div>
+          <div id="chosen-h"><h2 id="chosen-title"></h2><span class="sub" id="chosen-sub"></span></div>
+          <button class="btn quiet sm" id="compare">Compare</button>
+          <button class="btn ink sm" id="choose">Go with this one</button>
+          <button class="btn quiet sm" id="to-export" hidden>Export &amp; book</button>
+        </div>
+        <div id="dash-map" class="map"></div>
+        <div id="dash-days"></div>
+        <div id="variants"></div>
+        <div id="dash-stats"></div>
+        <div id="gen" hidden><i></i><span id="gen-txt"></span></div>
+      </div>
+      <aside id="chat">
+        <div id="chat-h"><span class="live"></span><b>Planner</b><span id="chat-sub">reading your board</span></div>
+        <div id="chat-log"></div>
+        <div id="composer">
+          <div id="chips"></div>
+          <div class="cbox"><input id="chat-in" type="text" placeholder="Ask, or tell me what to change…" autocomplete="off"><button class="send" id="chat-send" aria-label="Send"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
+          <div class="quick" id="quick"></div>
+        </div>
+      </aside>
+    </section>
+
+    <!-- ===== 5 · EXPORT ===== -->
+    <section id="v-export" hidden><div class="exp" id="exp"></div></section>
+  </main>
+</div>
+
+<div id="cards"></div>
+<section id="v-questions" hidden><div class="qcard" id="qcard"></div></section>
+<div id="hero" hidden></div>
+<div id="toasts"></div>
+<div id="print"></div>
+
+<script>
+/* Gander prototype · data
+   Photos are the Canva "Sri Lanka Moodboard" export (Elif Su Duygun), reused as placeholders.
+   Metadata below is demo enrichment: durations, best time of day, seasonality, booking lead. */
+window.GANDER_DATA = (function () {
+  const A = 'assets/';
+  const img = (f) => A + f;
+
+  // ---- regions (bases) -------------------------------------------------
+  const regions = {
+    negombo:  { name: 'Negombo',      lat: 7.21, lon: 79.84, stay: 'p2_22_mirissa.jpg' },
+    colombo:  { name: 'Colombo',      lat: 6.93, lon: 79.85, stay: 'p2_19_galle.jpg' },
+    kandy:    { name: 'Kandy',        lat: 7.29, lon: 80.64, stay: 'p2_22_mirissa.jpg' },
+    sigiriya: { name: 'Sigiriya',     lat: 7.96, lon: 80.76, stay: 'p2_27.jpg' },
+    ella:     { name: 'Ella',         lat: 6.87, lon: 81.05, stay: 'p2_27.jpg' },
+    yala:     { name: 'Yala',         lat: 6.37, lon: 81.52, stay: 'p2_27.jpg' },
+    mirissa:  { name: 'Mirissa',      lat: 5.95, lon: 80.46, stay: 'p1_13.jpg' },
+    galle:    { name: 'Galle',        lat: 6.03, lon: 80.22, stay: 'p2_19_galle.jpg' },
+    trinco:   { name: 'Trincomalee',  lat: 8.59, lon: 81.22, stay: 'p1_13.jpg' },
+    arugam:   { name: 'Arugam Bay',   lat: 6.84, lon: 81.83, stay: 'p2_22_mirissa.jpg' },
+    jaffna:   { name: 'Jaffna',       lat: 9.66, lon: 80.01, stay: 'p2_22_mirissa.jpg' },
+    hikkaduwa:{ name: 'Hikkaduwa',    lat: 6.14, lon: 80.10, stay: 'p1_13.jpg' },
+    udawalawe:{ name: 'Udawalawe',    lat: 6.44, lon: 80.89, stay: 'p2_27.jpg' },
+  };
+
+  // ---- entities --------------------------------------------------------
+  // type: place | site | experience | event | vibe | food | stay
+  // dur in hours · best: dawn | day | dusk | night · cost: 0-3 · lead: booking lead in days (0 = walk-in)
+  const E = [
+    // Negombo / arrival
+    { id: 'arrive',        name: 'Touch down over the lagoon', type: 'place', region: 'negombo', lat: 7.18, lon: 79.88, img: 'p2_04_negombo.jpg', dur: 2, best: 'day', cost: 0, lead: 0, tags: ['arrival'], blurb: 'Bandaranaike airport is 15 minutes from Negombo — land, sleep by the sea, start slow.' },
+    { id: 'negombo-beach', name: 'Negombo beach & oruwa boats', type: 'site', region: 'negombo', lat: 7.22, lon: 79.83, img: 'p2_07_negombo.jpg', dur: 3, best: 'dusk', cost: 0, lead: 0, tags: ['beach','slow'], blurb: 'Outrigger boats come in at dusk; the fish market is at dawn.' },
+    { id: 'negombo-lagoon',name: 'Lagoon sunset, Negombo', type: 'experience', region: 'negombo', lat: 7.16, lon: 79.85, img: 'p1_15.jpg', dur: 1.5, best: 'dusk', cost: 1, lead: 0, tags: ['slow','local'], blurb: 'A slow boat on the Negombo lagoon as the sun drops behind the palms.' },
+    // Kandy
+    { id: 'perahera',      name: 'Kandy Esala Perahera', type: 'event', region: 'kandy', lat: 7.294, lon: 80.641, img: 'p2_03_kandy.jpg', dur: 4, best: 'night', cost: 2, lead: 45, date: '2024-08-17', dateLabel: '10–20 Aug · final night 19 Aug', tags: ['event','iconic'], blurb: 'Ten nights of drummers, dancers and lit elephants circling the Temple of the Tooth. The Randoli nights (15–19 Aug) are the big ones; grandstand seats sell out weeks ahead.' },
+    { id: 'kandy-train',   name: 'Kandy → Ella by train', type: 'experience', region: 'kandy', lat: 7.29, lon: 80.63, img: 'p1_06_train-rides.jpg', dur: 7, best: 'day', cost: 1, lead: 30, tags: ['iconic','train'], blurb: 'Seven hours through tea country. Reserved 2nd-class seats open 30 days out and go in minutes; unreserved is the adventure version.' },
+    { id: 'peradeniya',    name: 'Royal Botanical Gardens, Peradeniya', type: 'site', region: 'kandy', lat: 7.27, lon: 80.60, img: 'p2_11_mirissa.jpg', dur: 2.5, best: 'day', cost: 1, lead: 0, tags: ['local','slow'], blurb: 'The palm avenue is the one on every postcard; the orchid house is the one locals go for.' },
+    // Cultural triangle
+    { id: 'sigiriya',      name: 'Sigiriya Lion Rock', type: 'site', region: 'sigiriya', lat: 7.957, lon: 80.760, img: 'p4_03_sigiriya.jpg', dur: 3.5, best: 'dawn', cost: 2, lead: 0, tags: ['iconic'], blurb: 'Go at 7 when the gates open — by 10 the rock is an oven. About 1,200 steps.' },
+    { id: 'pidurangala',   name: 'Pidurangala sunrise', type: 'experience', region: 'sigiriya', lat: 7.973, lon: 80.762, img: 'p2_06_sigiriya.jpg', dur: 3, best: 'dawn', cost: 1, lead: 0, tags: ['iconic','dawn'], blurb: 'The rock opposite Sigiriya, with the better view of Sigiriya. Start climbing at 5:15 with a torch.' },
+    { id: 'dambulla',      name: 'Dambulla cave temples', type: 'site', region: 'sigiriya', lat: 7.856, lon: 80.649, img: 'p2_09_galle.jpg', dur: 2, best: 'day', cost: 1, lead: 0, tags: ['iconic'], blurb: 'Five caves of reclining Buddhas under a painted ceiling. Cover shoulders and knees.' },
+    { id: 'minneriya',     name: 'Minneriya — the Gathering', type: 'experience', region: 'sigiriya', lat: 8.03, lon: 80.90, img: 'p1_16_safari.jpg', dur: 4, best: 'dusk', cost: 2, lead: 7, season: 'Jul–Sep', tags: ['event','safari','season'], blurb: 'Up to 300 elephants gather on the tank bed in the dry months. August is peak — this is the reason to time a trip.' },
+    // Hill country
+    { id: 'nine-arch',     name: 'Nine Arch Bridge, Ella', type: 'site', region: 'ella', lat: 6.877, lon: 81.061, img: 'p1_14.jpg', dur: 2, best: 'dawn', cost: 0, lead: 0, tags: ['iconic'], blurb: 'Walk the tracks from Ella; the 9:30 train crosses with a whistle if you time it.' },
+    { id: 'tea-mist',      name: 'Tea trails above Ella', type: 'experience', region: 'ella', lat: 6.86, lon: 81.04, img: 'p2_05_ella.jpg', dur: 3, best: 'day', cost: 0, lead: 0, tags: ['slow','hike'], blurb: 'Little Adam\'s Peak, then a factory tour and a cup at the source.' },
+    { id: 'scooter-hills', name: 'Scooter the hill roads', type: 'vibe', region: 'ella', lat: 6.90, lon: 81.00, img: 'p1_19.jpg', dur: 4, best: 'day', cost: 1, lead: 0, tags: ['vibe'], blurb: 'Rent a scooter for the day; the Ella–Wellawaya road is the one.' },
+    { id: 'horton',        name: 'Horton Plains — World\'s End', type: 'site', region: 'ella', lat: 6.80, lon: 80.80, img: 'p2_05_ella.jpg', dur: 5, best: 'dawn', cost: 2, lead: 0, tags: ['hike'], blurb: 'Leave by 5 to beat the cloud; the drop at World\'s End closes over by 10.' },
+    { id: 'ella-cottage',  name: 'Hill cottage, Ella', type: 'stay', region: 'ella', lat: 6.87, lon: 81.05, img: 'p2_27.jpg', dur: 0, best: 'night', cost: 2, lead: 21, tags: ['stay'], blurb: 'A garden bungalow with a view down the gap. Two nights minimum in August.' },
+    // Safari
+    { id: 'yala-leopard',  name: 'Yala — leopard at dawn', type: 'experience', region: 'yala', lat: 6.37, lon: 81.52, img: 'p1_18.jpg', dur: 5, best: 'dawn', cost: 3, lead: 14, tags: ['iconic','safari'], blurb: 'Block 1 has the highest leopard density anywhere. Dry season sightings are good; jeeps queue at the gate from 5:30.' },
+    { id: 'yala-elephant', name: 'Yala elephants', type: 'experience', region: 'yala', lat: 6.40, lon: 81.45, img: 'p2_16_yala.jpg', dur: 4, best: 'dusk', cost: 2, lead: 7, tags: ['safari'], blurb: 'The afternoon drive is quieter and the light is better.' },
+    { id: 'yala-deer',     name: 'Slow safari, Bundala', type: 'experience', region: 'yala', lat: 6.20, lon: 81.20, img: 'p2_18_yala.jpg', dur: 3, best: 'dawn', cost: 1, lead: 0, tags: ['slow','local'], blurb: 'Birds, deer and no jeep queues. The locals\' park.' },
+    { id: 'udawalawe',     name: 'Udawalawe elephants', type: 'experience', region: 'udawalawe', lat: 6.44, lon: 80.89, img: 'p2_25.jpg', dur: 4, best: 'dusk', cost: 2, lead: 3, tags: ['safari','local'], blurb: 'Guaranteed elephants, an hour off the Ella–coast road.' },
+    // South coast
+    { id: 'coconut-hill',  name: 'Coconut Tree Hill, Mirissa', type: 'site', region: 'mirissa', lat: 5.944, lon: 80.470, img: 'p2_14_galle.jpg', dur: 1, best: 'dusk', cost: 0, lead: 0, tags: ['iconic','beach'], blurb: 'Ten minutes\' walk from the beach; go for the last hour of light.' },
+    { id: 'whales',        name: 'Whale watching, Mirissa', type: 'experience', region: 'mirissa', lat: 5.90, lon: 80.45, img: 'p1_10_galle.jpg', dur: 5, best: 'dawn', cost: 2, lead: 3, season: 'Nov–Apr', offSeason: true, tags: ['season'], blurb: 'Blue whales, Nov–Apr. In August the sea is rough and boats mostly don\'t go out.' },
+    { id: 'parrot-rock',   name: 'Parrot Rock & Secret Beach', type: 'site', region: 'mirissa', lat: 5.946, lon: 80.458, img: 'p2_17_mirissa.jpg', dur: 2, best: 'day', cost: 0, lead: 0, tags: ['beach','slow'], blurb: 'Wade out at low tide; the cove round the headland is the quiet one.' },
+    { id: 'villa',         name: 'Sea-view villa breakfast', type: 'stay', region: 'mirissa', lat: 5.95, lon: 80.44, img: 'p1_13.jpg', dur: 0, best: 'day', cost: 3, lead: 30, tags: ['stay','slow'], blurb: 'Papaya, curd and treacle on a terrace over the bay.' },
+    { id: 'stilt',         name: 'Stilt fishermen, Koggala', type: 'site', region: 'galle', lat: 5.985, lon: 80.335, img: 'p2_24.jpg', dur: 1, best: 'dusk', cost: 0, lead: 0, tags: ['iconic'], blurb: 'Mostly for the photo these days — tip the fishermen, go at sunset.' },
+    { id: 'cove',          name: 'Hidden cove near Tangalle', type: 'site', region: 'mirissa', lat: 6.02, lon: 80.80, img: 'p1_20_sri-lankan-curry.jpg', dur: 3, best: 'day', cost: 0, lead: 0, tags: ['beach','slow'], blurb: 'Hiriketiya\'s quieter neighbour. Bring water; there\'s nothing there, which is the point.' },
+    { id: 'galle-fort',    name: 'Galle Fort ramparts & lighthouse', type: 'site', region: 'galle', lat: 6.026, lon: 80.217, img: 'p2_13_galle.jpg', dur: 2, best: 'dusk', cost: 0, lead: 0, tags: ['iconic'], blurb: 'Walk the full circuit of the Dutch walls at sunset, finish at the lighthouse.' },
+    { id: 'galle-cafe',    name: 'Fort café mornings', type: 'food', region: 'galle', lat: 6.028, lon: 80.215, img: 'p2_08_galle.jpg', dur: 1.5, best: 'day', cost: 1, lead: 0, tags: ['slow','food'], blurb: 'Pedlar Street before the tour buses. Egg hoppers and a proper coffee.' },
+    { id: 'galle-cycle',   name: 'Cycle the fort lanes', type: 'experience', region: 'galle', lat: 6.03, lon: 80.22, img: 'p1_12.jpg', dur: 2, best: 'day', cost: 0, lead: 0, tags: ['slow'], blurb: 'Borrow a bike from your guesthouse; the lanes are flat and shaded.' },
+    { id: 'galle-stay',    name: 'Boutique stay in the fort', type: 'stay', region: 'galle', lat: 6.027, lon: 80.218, img: 'p2_19_galle.jpg', dur: 0, best: 'night', cost: 3, lead: 30, tags: ['stay'], blurb: 'A merchant\'s house behind the walls. Courtyards, high ceilings, a pool the size of a bath.' },
+    { id: 'unawatuna',     name: 'Unawatuna beach', type: 'site', region: 'galle', lat: 6.01, lon: 80.25, img: 'p1_09_unawatuna.jpg', dur: 3, best: 'day', cost: 0, lead: 0, tags: ['beach','slow'], blurb: 'The sheltered bay — swimmable even in monsoon months.' },
+    { id: 'hikkaduwa',     name: 'Hikkaduwa sunset', type: 'site', region: 'hikkaduwa', lat: 6.14, lon: 80.10, img: 'p1_08_hikkaduwa.jpg', dur: 2, best: 'dusk', cost: 0, lead: 0, tags: ['beach','slow'], blurb: 'Turtles come in to the reef beach in the late afternoon.' },
+    { id: 'beach-evenings',name: 'Beach town evenings', type: 'vibe', region: 'galle', lat: 6.00, lon: 80.30, img: 'p1_07_beach-towns.jpg', dur: 2, best: 'dusk', cost: 1, lead: 0, tags: ['vibe','beach'], blurb: 'Barefoot dinners, one beer, early night. The south coast rhythm.' },
+    // Colombo
+    { id: 'colombo-night', name: 'Colombo at night', type: 'site', region: 'colombo', lat: 6.927, lon: 79.858, img: 'p2_15_colombo.jpg', dur: 2, best: 'night', cost: 1, lead: 0, tags: ['city'], blurb: 'Galle Face Green at dusk — kites, isso wade, the Lotus Tower lighting up.' },
+    { id: 'pettah',        name: 'Pettah market & tuk-tuks', type: 'experience', region: 'colombo', lat: 6.937, lon: 79.852, img: 'p2_23_colombo.jpg', dur: 2.5, best: 'day', cost: 0, lead: 0, tags: ['local','city'], blurb: 'Each street sells one thing. Go before 11 and let a tuk-tuk get lost with you.' },
+    { id: 'galleries',     name: 'Colombo galleries', type: 'site', region: 'colombo', lat: 6.905, lon: 79.860, img: 'p2_21_colombo.jpg', dur: 2, best: 'day', cost: 0, lead: 0, tags: ['city','slow'], blurb: 'Saskia Fernando, Barefoot, the Lionel Wendt — an afternoon loop.' },
+    { id: 'coastal-train', name: 'Coastal train into Colombo', type: 'experience', region: 'colombo', lat: 6.85, lon: 79.87, img: 'p2_10_colombo.jpg', dur: 2.5, best: 'day', cost: 0, lead: 0, tags: ['local','train'], blurb: 'The line runs on the sand from Galle to Fort. Sit left, doors open.' },
+    { id: 'garden-dinner', name: 'Dinner in a garden restaurant', type: 'food', region: 'colombo', lat: 6.91, lon: 79.86, img: 'p2_26.jpg', dur: 2, best: 'night', cost: 2, lead: 2, tags: ['food','city'], blurb: 'Last night, long table, crab curry.' },
+    // Food & vibes (anywhere)
+    { id: 'curry',         name: 'Rice & curry feast', type: 'food', region: 'kandy', lat: 7.30, lon: 80.62, img: 'p1_21_sri-lankan-curry.jpg', dur: 1.5, best: 'day', cost: 1, lead: 0, tags: ['food'], blurb: 'Eight little bowls, one plate of rice. Every region does it differently.' },
+    { id: 'roti',          name: 'Coconut roti & pol sambol', type: 'food', region: 'galle', lat: 6.03, lon: 80.23, img: 'p1_17_coconut-roti.jpg', dur: 1, best: 'day', cost: 0, lead: 0, tags: ['food'], blurb: 'Breakfast, from a roadside hut, with a cup of plain tea.' },
+    { id: 'king-coconut',  name: 'Fresh king coconut', type: 'food', region: 'mirissa', lat: 5.95, lon: 80.47, img: 'p1_22_coconut-roti.jpg', dur: 0.5, best: 'day', cost: 0, lead: 0, tags: ['food','slow'], blurb: 'Orange, not green. Every hundred metres of road.' },
+    { id: 'island-chill',  name: 'Island chill', type: 'vibe', region: 'mirissa', lat: 5.96, lon: 80.50, img: 'p1_03_island-chill.jpg', dur: 4, best: 'day', cost: 0, lead: 0, tags: ['vibe','slow'], blurb: 'Hammock, palm, nothing on the calendar.' },
+    { id: 'slow-beach',    name: 'Slow beach days', type: 'vibe', region: 'galle', lat: 6.05, lon: 80.20, img: 'p1_05_island-chill.jpg', dur: 5, best: 'day', cost: 0, lead: 0, tags: ['vibe','slow','beach'], blurb: 'Shells, a book, the same café twice.' },
+    { id: 'guesthouse',    name: 'Family guesthouse', type: 'stay', region: 'kandy', lat: 7.30, lon: 80.65, img: 'p2_22_mirissa.jpg', dur: 0, best: 'night', cost: 1, lead: 7, tags: ['stay','local'], blurb: 'Home cooking, a mother who will not let you leave hungry.' },
+    // East & north — in season in August
+    { id: 'trinco',        name: 'Trincomalee — Nilaveli beach', type: 'place', region: 'trinco', lat: 8.59, lon: 81.22, img: 'p1_09_unawatuna.jpg', dur: 6, best: 'day', cost: 1, lead: 0, season: 'May–Sep', tags: ['beach','season'], blurb: 'The east coast is in season when the south-west is in monsoon. Flat sea, Pigeon Island snorkelling.' },
+    { id: 'arugam',        name: 'Arugam Bay surf', type: 'place', region: 'arugam', lat: 6.84, lon: 81.83, img: 'p1_07_beach-towns.jpg', dur: 6, best: 'dawn', cost: 1, lead: 0, season: 'May–Sep', tags: ['beach','season','surf'], blurb: 'August is peak swell. Main Point for the good surfers, Baby Point for the rest of us.' },
+    { id: 'nallur',        name: 'Nallur festival, Jaffna', type: 'event', region: 'jaffna', lat: 9.674, lon: 80.030, img: 'p1_21_sri-lankan-curry.jpg', dur: 3, best: 'dusk', cost: 0, lead: 0, date: '2024-08-22', dateLabel: '2–26 Aug', tags: ['event'], blurb: 'Twenty-five days of chariot processions at the Kandaswamy temple. Very far north — a trip in itself.' },
+  ];
+
+  const byId = Object.fromEntries(E.map(e => [e.id, e]));
+  E.forEach(e => { e.src = img(e.img); e.regionName = regions[e.region].name; });
+
+  // ---- shelves ---------------------------------------------------------
+  const shelves = [
+    { id: 'iconic', title: 'Iconic', why: 'the canonical Sri Lanka set', ids: ['sigiriya','kandy-train','nine-arch','yala-leopard','galle-fort','coconut-hill','dambulla','pidurangala','stilt'] },
+    { id: 'dates',  title: 'Only during your dates', why: '10 – 24 Aug 2024 · events and seasonal moments', ids: ['perahera','minneriya','trinco','arugam','nallur','whales'] },
+    { id: 'near',   title: 'Near what you\'ve picked', why: 'appears after your first add', ids: [], dynamic: true },
+    { id: 'slow',   title: 'Slow days', why: 'low effort, low transit', ids: ['villa','unawatuna','parrot-rock','cove','galle-cafe','galle-cycle','hikkaduwa','king-coconut','yala-deer'] },
+    { id: 'food',   title: 'Sri Lankan food', why: 'eat like it\'s the point', ids: ['curry','roti','king-coconut','galle-cafe','garden-dinner'] },
+    { id: 'local',  title: 'Where locals go', why: 'editorial picks, fewer tour buses', ids: ['pettah','coastal-train','peradeniya','negombo-lagoon','udawalawe','yala-deer','negombo-beach'] },
+    { id: 'vibes',  title: 'Vibes', why: 'a mood, translated into places', ids: ['island-chill','slow-beach','scooter-hills','beach-evenings','tea-mist'] },
+    { id: 'stays',  title: 'Stays', why: 'the bed shapes the day', ids: ['villa','galle-stay','ella-cottage','guesthouse'] },
+    { id: 'city',   title: 'Colombo, last', why: 'one night is enough, two is better', ids: ['colombo-night','pettah','galleries','garden-dinner','coastal-train','arrive'] },
+  ];
+
+  // ---- world search ----------------------------------------------------
+  const destinations = [
+    { name: 'Sri Lanka', lat: 7.5, lon: 80.7, ready: true, sub: 'island · 14 days is the classic loop' },
+    { name: 'Japan', lat: 36, lon: 138, sub: 'coming soon in this prototype' },
+    { name: 'Portugal', lat: 39.5, lon: -8, sub: 'coming soon in this prototype' },
+    { name: 'Türkiye', lat: 39, lon: 35, sub: 'coming soon in this prototype' },
+    { name: 'Vietnam', lat: 16, lon: 107.5, sub: 'coming soon in this prototype' },
+    { name: 'Morocco', lat: 31.8, lon: -7, sub: 'coming soon in this prototype' },
+    { name: 'Greece', lat: 39, lon: 22, sub: 'coming soon in this prototype' },
+    { name: 'Indonesia', lat: -2.5, lon: 118, sub: 'coming soon in this prototype' },
+    { name: 'Peru', lat: -9.2, lon: -75, sub: 'coming soon in this prototype' },
+    { name: 'Kenya', lat: 0.5, lon: 37.8, sub: 'coming soon in this prototype' },
+    { name: 'Iceland', lat: 65, lon: -18, sub: 'coming soon in this prototype' },
+    { name: 'Mexico', lat: 23.6, lon: -102.5, sub: 'coming soon in this prototype' },
+  ];
+  const cities = [[51.5,-0.1],[48.9,2.3],[40.4,-3.7],[41.9,12.5],[52.5,13.4],[55.8,37.6],[41.0,29.0],[30.0,31.2],[25.2,55.3],[28.6,77.2],[19.1,72.9],[13.1,80.3],[6.9,79.9],[13.8,100.5],[1.35,103.8],[-6.2,106.8],[22.3,114.2],[31.2,121.5],[39.9,116.4],[35.7,139.7],[37.6,127],[-33.9,151.2],[-37.8,145],[-41.3,174.8],[40.7,-74],[34.1,-118.2],[41.9,-87.6],[19.4,-99.1],[-23.5,-46.6],[-34.6,-58.4],[-12.0,-77.0],[4.7,-74.1],[-1.3,36.8],[-26.2,28.0],[6.5,3.4],[33.6,-7.6],[64.1,-21.9],[59.9,10.8],[60.2,24.9],[-8.7,115.2],[27.7,85.3],[43.7,-79.4],[49.3,-123.1],[21.3,-157.8],[-17.5,-149.5],[64.8,-147.7],[55.7,12.6],[50.1,14.4],[47.5,19.0],[38.7,-9.1],[-4.3,15.3],[15.6,32.5],[9.0,38.7],[24.7,46.7],[33.3,44.4],[35.7,51.4],[41.3,69.3],[43.2,76.9],[47.9,106.9],[16.9,96.2],[21.0,105.8],[10.8,106.7],[14.6,121.0],[3.1,101.7],[-15.8,-47.9],[-33.4,-70.7],[10.5,-66.9],[18.5,-69.9],[23.1,-82.4],[45.5,-73.6]];
+
+  // ---- itinerary options ----------------------------------------------
+  // Each day: base region, slots [{id, t: 'HH:MM'}], and the leg *into* this day from the previous base
+  // mode: drive | rail | fly | walk | ferry
+  const options = [
+    {
+      id: 'classic', thesis: 'The Classic Loop', tag: 'Sees the most', trade: 'a new bed most nights',
+      accent: '#FF6A2B',
+      days: [
+        { base: 'negombo', slots: [{ id: 'arrive', t: '13:40' }, { id: 'negombo-beach', t: '17:00' }] },
+        { base: 'kandy', leg: { mode: 'drive', min: 190 }, slots: [{ id: 'peradeniya', t: '14:00' }, { id: 'curry', t: '19:00' }] },
+        { base: 'kandy', slots: [{ id: 'guesthouse', t: '09:00' }, { id: 'perahera', t: '19:30' }] },
+        { base: 'sigiriya', leg: { mode: 'drive', min: 150 }, slots: [{ id: 'dambulla', t: '13:00' }, { id: 'minneriya', t: '15:30' }] },
+        { base: 'sigiriya', slots: [{ id: 'pidurangala', t: '05:15' }, { id: 'sigiriya', t: '07:30' }] },
+        { base: 'ella', leg: { mode: 'drive', min: 150, note: 'to Kandy station' }, slots: [{ id: 'kandy-train', t: '08:47' }, { id: 'ella-cottage', t: '17:00' }] },
+        { base: 'ella', slots: [{ id: 'nine-arch', t: '08:30' }, { id: 'tea-mist', t: '11:00' }, { id: 'scooter-hills', t: '15:00' }] },
+        { base: 'yala', leg: { mode: 'drive', min: 165 }, slots: [{ id: 'yala-elephant', t: '15:00' }] },
+        { base: 'mirissa', leg: { mode: 'drive', min: 180 }, slots: [{ id: 'yala-leopard', t: '05:30' }, { id: 'coconut-hill', t: '17:30' }] },
+        { base: 'mirissa', slots: [{ id: 'villa', t: '08:00' }, { id: 'parrot-rock', t: '10:00' }, { id: 'king-coconut', t: '12:30' }, { id: 'island-chill', t: '14:00' }] },
+        { base: 'galle', leg: { mode: 'drive', min: 50 }, slots: [{ id: 'stilt', t: '07:30' }, { id: 'galle-cafe', t: '09:30' }, { id: 'galle-fort', t: '17:30' }] },
+        { base: 'galle', slots: [{ id: 'galle-cycle', t: '08:00' }, { id: 'unawatuna', t: '11:00' }, { id: 'roti', t: '13:00' }, { id: 'beach-evenings', t: '18:30' }] },
+        { base: 'colombo', leg: { mode: 'rail', min: 150 }, slots: [{ id: 'coastal-train', t: '09:20' }, { id: 'pettah', t: '14:00' }, { id: 'colombo-night', t: '18:30' }] },
+        { base: 'colombo', slots: [{ id: 'galleries', t: '10:00' }, { id: 'garden-dinner', t: '19:30' }] },
+        { base: 'colombo', end: true, slots: [] },
+      ],
+      reasons: { whales: 'off-season in August — boats rarely go out', trinco: '6 h from every base on this loop', arugam: 'would cost Galle and Mirissa', nallur: 'a two-day detour north', horton: 'a 4 a.m. start the day after the train', hikkaduwa: 'same beach as Unawatuna, an hour further', udawalawe: 'Yala covers it', 'yala-deer': 'Yala covers it', 'negombo-lagoon': 'arrival day is enough', cove: 'no time on the south coast leg', 'slow-beach': 'covered by Mirissa day', 'galle-stay': 'guesthouse budget on this loop' },
+    },
+    {
+      id: 'slow', thesis: 'The Slow South', tag: 'One coast, done properly', trade: 'skips Sigiriya and the safari',
+      accent: '#1B6C86',
+      days: [
+        { base: 'negombo', slots: [{ id: 'arrive', t: '13:40' }, { id: 'negombo-lagoon', t: '17:30' }] },
+        { base: 'kandy', leg: { mode: 'drive', min: 190 }, slots: [{ id: 'peradeniya', t: '14:00' }, { id: 'curry', t: '19:00' }] },
+        { base: 'kandy', slots: [{ id: 'guesthouse', t: '09:00' }, { id: 'perahera', t: '19:30' }] },
+        { base: 'ella', leg: { mode: 'rail', min: 420 }, slots: [{ id: 'kandy-train', t: '08:47' }, { id: 'ella-cottage', t: '17:00' }] },
+        { base: 'ella', slots: [{ id: 'nine-arch', t: '08:30' }, { id: 'tea-mist', t: '11:00' }] },
+        { base: 'mirissa', leg: { mode: 'drive', min: 240 }, slots: [{ id: 'udawalawe', t: '10:30' }, { id: 'coconut-hill', t: '17:30' }] },
+        { base: 'mirissa', slots: [{ id: 'villa', t: '08:00' }, { id: 'parrot-rock', t: '10:00' }, { id: 'island-chill', t: '13:00' }] },
+        { base: 'mirissa', slots: [{ id: 'cove', t: '09:00' }, { id: 'king-coconut', t: '12:30' }, { id: 'beach-evenings', t: '18:30' }] },
+        { base: 'mirissa', slots: [{ id: 'slow-beach', t: '09:00' }, { id: 'stilt', t: '17:30' }] },
+        { base: 'galle', leg: { mode: 'drive', min: 50 }, slots: [{ id: 'galle-stay', t: '13:00' }, { id: 'galle-fort', t: '17:30' }] },
+        { base: 'galle', slots: [{ id: 'galle-cafe', t: '08:30' }, { id: 'galle-cycle', t: '10:00' }, { id: 'roti', t: '13:00' }, { id: 'unawatuna', t: '15:00' }] },
+        { base: 'galle', slots: [{ id: 'hikkaduwa', t: '16:00' }] },
+        { base: 'colombo', leg: { mode: 'rail', min: 150 }, slots: [{ id: 'coastal-train', t: '09:20' }, { id: 'galleries', t: '14:00' }, { id: 'colombo-night', t: '18:30' }] },
+        { base: 'colombo', slots: [{ id: 'pettah', t: '09:00' }, { id: 'garden-dinner', t: '19:30' }] },
+        { base: 'colombo', end: true, slots: [] },
+      ],
+      reasons: { sigiriya: 'the cultural triangle is a 2-day detour north', pidurangala: 'goes with Sigiriya', dambulla: 'goes with Sigiriya', minneriya: 'goes with Sigiriya', 'yala-leopard': 'traded for four slow nights in Mirissa', 'yala-elephant': 'Udawalawe covers it in an hour', whales: 'off-season in August', trinco: 'wrong coast', arugam: 'wrong coast', nallur: 'a two-day detour north', horton: 'a 4 a.m. start the day after the train', 'scooter-hills': 'only one full day in Ella', 'yala-deer': 'no Yala leg', 'negombo-beach': 'lagoon instead' },
+    },
+    {
+      id: 'east', thesis: 'East, in Season', tag: 'Follows the weather', trade: 'no Galle, no Mirissa',
+      accent: '#3F8A5B',
+      days: [
+        { base: 'negombo', slots: [{ id: 'arrive', t: '13:40' }, { id: 'negombo-beach', t: '17:00' }] },
+        { base: 'sigiriya', leg: { mode: 'drive', min: 210 }, slots: [{ id: 'dambulla', t: '13:00' }, { id: 'minneriya', t: '15:30' }] },
+        { base: 'sigiriya', slots: [{ id: 'pidurangala', t: '05:15' }, { id: 'sigiriya', t: '07:30' }] },
+        { base: 'trinco', leg: { mode: 'drive', min: 120 }, slots: [{ id: 'trinco', t: '12:00' }] },
+        { base: 'trinco', slots: [{ id: 'trinco', t: '08:00' }, { id: 'king-coconut', t: '12:30' }] },
+        { base: 'trinco', slots: [{ id: 'slow-beach', t: '09:00' }] },
+        { base: 'arugam', leg: { mode: 'drive', min: 300 }, slots: [{ id: 'arugam', t: '16:00' }] },
+        { base: 'arugam', slots: [{ id: 'arugam', t: '06:00' }, { id: 'island-chill', t: '13:00' }] },
+        { base: 'arugam', slots: [{ id: 'arugam', t: '06:00' }, { id: 'beach-evenings', t: '18:30' }] },
+        { base: 'yala', leg: { mode: 'drive', min: 180 }, slots: [{ id: 'yala-elephant', t: '15:00' }] },
+        { base: 'ella', leg: { mode: 'drive', min: 150 }, slots: [{ id: 'yala-leopard', t: '05:30' }, { id: 'ella-cottage', t: '17:00' }] },
+        { base: 'ella', slots: [{ id: 'nine-arch', t: '08:30' }, { id: 'tea-mist', t: '11:00' }, { id: 'scooter-hills', t: '15:00' }] },
+        { base: 'kandy', leg: { mode: 'rail', min: 420 }, slots: [{ id: 'kandy-train', t: '06:40' }, { id: 'perahera', t: '19:30' }] },
+        { base: 'colombo', leg: { mode: 'drive', min: 190 }, slots: [{ id: 'pettah', t: '14:00' }, { id: 'garden-dinner', t: '19:30' }] },
+        { base: 'colombo', end: true, slots: [] },
+      ],
+      reasons: { 'galle-fort': 'wrong coast for August', 'coconut-hill': 'wrong coast for August', whales: 'off-season everywhere in August', stilt: 'wrong coast', unawatuna: 'wrong coast', villa: 'wrong coast', 'galle-cafe': 'wrong coast', 'galle-cycle': 'wrong coast', 'galle-stay': 'wrong coast', hikkaduwa: 'wrong coast', cove: 'wrong coast', 'parrot-rock': 'wrong coast', roti: 'eat it in Trinco instead', peradeniya: 'Kandy is one night, and it\'s Perahera night', nallur: 'a day further north than Trinco', horton: 'a 4 a.m. start the day after the train', udawalawe: 'Yala covers it', 'yala-deer': 'Yala covers it', 'colombo-night': 'one Colombo night', galleries: 'one Colombo night', 'coastal-train': 'arriving from Kandy by road', 'negombo-lagoon': 'beach instead', guesthouse: 'Kandy is one night', curry: 'Perahera night' },
+    },
+  ];
+
+  // ---- warnings by entity (shown inline in the itinerary) --------------
+  const warnings = {
+    whales:      { level: 'bad',  text: 'off-season · rough seas, boats rarely sail' },
+    'kandy-train': { level: 'warn', text: 'reserved seats sell out · book 30 days ahead' },
+    perahera:    { level: 'warn', text: 'grandstand seats sell out · book now' },
+    sigiriya:    { level: 'warn', text: 'go at gate-open · 34° by 10:00' },
+    'yala-leopard': { level: 'ok',  text: 'dry season · good sightings' },
+    minneriya:   { level: 'ok',   text: 'peak of the Gathering' },
+    unawatuna:   { level: 'warn', text: 'SW monsoon · afternoon showers likely' },
+    'coconut-hill': { level: 'warn', text: 'SW monsoon · check the sky at 16:00' },
+    trinco:      { level: 'ok',   text: 'east coast in season' },
+    arugam:      { level: 'ok',   text: 'peak swell' },
+    horton:      { level: 'warn', text: 'cloud closes World\'s End by 10:00' },
+  };
+
+  // ---- questions (chosen by the planner from the tray) -----------------
+  const questions = {
+    whales: { id: 'q-whales', kind: 'conflict', title: 'Whale watching is out of season', body: 'Blue whales are off Mirissa from November to April. In August the sea is rough and most boats stay in.', map: ['whales','trinco'],
+      options: [ { k: 'drop', label: 'Drop it', note: 'recommended' }, { k: 'swap', label: 'Swap for the east coast', note: 'Trincomalee is in season' }, { k: 'keep', label: 'Keep it anyway', note: 'we\'ll flag it' } ] },
+    coasts: { id: 'q-coasts', kind: 'conflict', title: 'Two coasts in fourteen days', body: 'The south coast and the east coast are about 9 hours apart by road. Doing both means two long transit days and less time in the hills.', map: ['galle-fort','trinco'],
+      options: [ { k: 'south', label: 'Prefer the south', note: 'Galle, Mirissa' }, { k: 'east', label: 'Prefer the east', note: 'in season in August' }, { k: 'both', label: 'Do both', note: '+9 h driving' } ] },
+    pace: { id: 'q-pace', kind: 'slider', title: 'How full should a day be?', body: 'This sets how many things land on each day and how early the alarm goes.', min: 'Slow', max: 'Packed' },
+    base: { id: 'q-base', kind: 'pick', title: 'How do you like to move?', body: 'A loop sees more and unpacks more. Bases see less and sleep better.',
+      options: [ { k: 'loop', label: 'A loop', note: 'new bed every 2 nights', img: 'p1_06_train-rides.jpg' }, { k: 'bases', label: 'Two or three bases', note: 'day trips out', img: 'p1_13.jpg' } ] },
+    budget: { id: 'q-budget', kind: 'pick', title: 'Which of these looks like your trip?', body: 'Not a number. Just the shape of it.',
+      options: [ { k: 'g', label: 'Guesthouses & trains', note: '€', img: 'p2_22_mirissa.jpg' }, { k: 'b', label: 'Boutique & a driver', note: '€€', img: 'p2_19_galle.jpg' }, { k: 'v', label: 'Villas & short flights', note: '€€€', img: 'p1_13.jpg' } ] },
+  };
+
+  // ---- Sri Lanka outline (lon, lat) — stylised ---------------------------
+  const outline = [[80.23,9.83],[80.05,9.80],[79.90,9.70],[79.92,9.55],[80.10,9.45],[80.05,9.25],[79.85,9.05],[79.80,8.90],[79.72,8.60],[79.80,8.40],[79.78,8.10],[79.83,7.90],[79.82,7.60],[79.84,7.20],[79.84,6.95],[79.86,6.75],[79.95,6.45],[80.02,6.30],[80.10,6.15],[80.22,6.02],[80.45,5.95],[80.60,5.92],[80.80,6.02],[81.05,6.10],[81.30,6.20],[81.50,6.35],[81.70,6.45],[81.83,6.75],[81.86,7.00],[81.80,7.40],[81.70,7.75],[81.60,8.00],[81.40,8.30],[81.25,8.55],[81.15,8.70],[80.95,8.85],[80.85,9.10],[80.70,9.30],[80.45,9.55],[80.30,9.70]];
+
+  // ---- decorative watercolor assets ------------------------------------
+  const deco = {
+    splashOrange: img('p1_04_orange-watercolor-splotch-shape.png'),
+    splashPink: img('p1_02_pink-watercolor-splatter.png'),
+    splashSoft: img('p1_01_soft-watercolor-splash-stain-background.png'),
+    splashPastel: img('p1_11_watercolor-splash-splatter-pastel.png'),
+    splashBlue: img('p4_02_watercolor-splash-clip-art.png'),
+    brush: img('p1_23_watercolor-brush-stroke.png'),
+    elephant: img('p4_16_elephant-watercolor-illustration.png'),
+    turtle: img('p4_18_watercolor-turtle-illustration.png'),
+    whale: img('p4_24_whale-watercolor-illustration.png'),
+    lighthouse: img('p4_19_watercolor-galle-lighthouse-sri-lanka.png'),
+    mountains: img('p4_09_watercolor-landscape-with-mountains.png'),
+    island: img('p4_23_island-watercolor-illustration.png'),
+    scooter: img('p4_22_watercolor-blue-scooter.png'),
+    umbrella: img('p4_06_umbrella-beach-watercolor-illustration-f.png'),
+    tickets: img('p4_10_airplane-tickets-watercolor.png'),
+    lotus: img('p4_13_lotus-tower-sri-lanka-clipart.png'),
+    camera: img('p4_17_watercolor-photography-composition-illus.png'),
+    grapefruit: img('p4_07_watercolor-grapefruit-slice.png'),
+  };
+  const mapStickers = [
+    { src: deco.elephant, lat: 8.45, lon: 80.15, w: 46 },
+    { src: deco.mountains, lat: 6.70, lon: 80.45, w: 44 },
+    { src: deco.lighthouse, lat: 5.98, lon: 80.10, w: 18 },
+    { src: deco.turtle, lat: 6.30, lon: 79.70, w: 26 },
+    { src: deco.whale, lat: 5.60, lon: 81.05, w: 40 },
+    { src: deco.island, lat: 8.90, lon: 81.55, w: 30 },
+    { src: deco.umbrella, lat: 7.35, lon: 79.55, w: 20 },
+    { src: deco.lotus, lat: 6.93, lon: 79.72, w: 9 },
+    { src: deco.scooter, lat: 6.60, lon: 81.30, w: 16 },
+  ];
+
+  return { regions, entities: E, byId, shelves, destinations, cities, options, warnings, questions, outline, deco, mapStickers, trip: { dest: 'Sri Lanka', start: '2024-08-10', end: '2024-08-24', party: 'Couple' } };
+})();
+
+</script>
+<script>
+/* Gander prototype · app.js
+   One card per entity, one DOM node for its whole life. Views publish slots; the card layer lays cards onto them. */
+(function () {
+'use strict';
+const D = window.GANDER_DATA;
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const esc = (s) => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const ICON = {
+  must: '<svg viewBox="0 0 24 24"><path d="M12 3v18M5 10l7-7 7 7"/></svg>',
+  lock: '<svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>',
+  check: '<svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg>',
+  plus: '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+  x: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  flag: '<svg viewBox="0 0 24 24"><path d="M12 8v5M12 16h.01"/></svg>',
+};
+const MODE_DASH = { drive: '', fly: '10 8', rail: '6 4', walk: '1 6', ferry: '14 6 2 6', proposed: '2 4' };
+
+// ---------------------------------------------------------------- state
+const state = {
+  stage: 'globe', dest: null, start: '2024-08-10', end: '2024-08-24', party: 'Couple', shape: 'Exact',
+  tray: [], must: new Set(), locked: new Set(), booked: new Set(), pegs: {}, hints: {},
+  answers: {}, questions: [], qi: 0,
+  options: [], optIdx: 0, mode: 'options', compare: false,
+  plan: null, removed: {}, history: [], chips: [], flyFromLast: false, reached: new Set(['globe']),
+};
+function nights() { return Math.max(1, Math.round((new Date(state.end) - new Date(state.start)) / 864e5)); }
+function days() { return nights() + 1; }
+function dateOf(i) { const d = new Date(state.start + 'T00:00:00'); d.setDate(d.getDate() + i); return d; }
+const DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const fmtD = (d) => `${DOW[d.getDay()]} ${d.getDate()} ${MON[d.getMonth()]}`;
+const fmtShort = (iso) => { const d = new Date(iso + 'T00:00:00'); return `${d.getDate()} ${MON[d.getMonth()]}`; };
+function dayIndexOf(iso) { return Math.round((new Date(iso + 'T00:00:00') - new Date(state.start + 'T00:00:00')) / 864e5); }
+function haversine(a, b) { const R = 6371, dLat = (b.lat - a.lat) * Math.PI / 180, dLon = (b.lon - a.lon) * Math.PI / 180; const s = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * Math.PI / 180) * Math.cos(b.lat * Math.PI / 180) * Math.sin(dLon / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(s)); }
+
+// ---------------------------------------------------------------- toasts
+function toast(text, opts = {}) {
+  const t = document.createElement('div'); t.className = 'toast';
+  t.innerHTML = `<span>${text}</span>${opts.mono ? `<span class="mono">${esc(opts.mono)}</span>` : ''}${opts.action ? `<button type="button">${esc(opts.action)}</button>` : ''}`;
+  if (opts.action) $('button', t).addEventListener('click', () => { opts.onAction && opts.onAction(); t.remove(); });
+  $('#toasts').append(t); setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity 300ms'; setTimeout(() => t.remove(), 320); }, opts.ms || 3200);
+}
+
+// ---------------------------------------------------------------- THE CARD LAYER
+const layer = $('#cards');
+const cards = new Map();
+const RADIUS = { pin: '999px', chip: '8px', tile: '12px', hero: '18px', ctl: '10px' };
+function shapeFor(w, h) { if (w <= 40) return 'pin'; if (w < 110) return 'chip'; if (w >= 280) return 'hero'; return 'tile'; }
+
+function ensureCard(id) {
+  if (cards.has(id)) return cards.get(id);
+  const e = D.byId[id];
+  const el = document.createElement('div');
+  el.className = 'card off'; el.dataset.id = id; el.tabIndex = 0; el.setAttribute('role', 'button'); el.setAttribute('aria-label', e.name);
+  const typeLabel = e.type === 'event' ? fmtShort(e.date) : e.type;
+  el.innerHTML = `<img src="${e.src}" alt="" draggable="false"><div class="scrim"></div><span class="type ${e.type === 'event' ? 'date' : ''}">${esc(typeLabel)}</span>
+    <div class="meta"><span>${e.regionName}</span>${e.dur ? `<span>~${e.dur} h</span>` : ''}<span>${e.best}</span>${e.season ? `<span>${e.season}</span>` : ''}</div>
+    <div class="name">${esc(e.name)}</div>
+    <span class="badge b-must">${ICON.must}</span><span class="badge b-lock">${ICON.lock}</span><span class="badge b-book">${ICON.check}</span>
+    <button class="act add" type="button" aria-label="Add">${ICON.plus}</button><button class="act x" type="button" aria-label="Remove">${ICON.x}</button>`;
+  layer.append(el); cards.set(id, el);
+  bindCard(el);
+  return el;
+}
+function syncCardState(id) {
+  const el = cards.get(id); if (!el) return;
+  el.classList.toggle('must', state.must.has(id));
+  el.classList.toggle('locked', state.locked.has(id));
+  el.classList.toggle('booked', state.booked.has(id));
+  el.classList.toggle('intray', state.tray.includes(id));
+}
+function place(el, r, instant) {
+  if (instant) { el.style.transition = 'none'; }
+  el.style.left = r.left + 'px'; el.style.top = r.top + 'px'; el.style.width = r.width + 'px'; el.style.height = r.height + 'px';
+  if (instant) { void el.offsetWidth; el.style.transition = ''; }
+}
+let layoutPending = false, layoutMode = null;
+function requestLayout(mode) { layoutMode = mode || layoutMode; if (layoutPending) return; layoutPending = true; requestAnimationFrame(() => { layoutPending = false; const m = layoutMode; layoutMode = null; layout(m); }); }
+
+function layout(mode) {
+  if (mode) layer.classList.add(mode);
+  const claims = new Map(); const losers = [];
+  for (const s of $$('[data-slot]')) {
+    if (!s.getClientRects().length) continue;
+    const id = s.dataset.slot; if (!D.byId[id]) continue;
+    let prio = +(s.dataset.prio || 0); if (s.classList.contains('focus')) prio += 100;
+    const c = claims.get(id);
+    if (!c || prio > c.prio) { if (c) losers.push(c.slot); claims.set(id, { slot: s, prio }); } else losers.push(s);
+  }
+  for (const s of losers) { s.classList.add('ghosted'); s.style.setProperty('--ghost', `url("${D.byId[s.dataset.slot].src}")`); }
+  const vw = innerWidth, vh = innerHeight;
+  claims.forEach(({ slot }, id) => {
+    slot.classList.remove('ghosted');
+    const el = ensureCard(id);
+    let r = slot.getBoundingClientRect();
+    // clip to the nearest scroll container
+    let clip = ''; let box = null; let anc = slot.parentElement;
+    while (anc) { if (anc.classList && anc.classList.contains('clip')) { const c = anc.getBoundingClientRect(); box = box ? { left: Math.max(box.left, c.left), top: Math.max(box.top, c.top), right: Math.min(box.right, c.right), bottom: Math.min(box.bottom, c.bottom) } : { left: c.left, top: c.top, right: c.right, bottom: c.bottom }; } anc = anc.parentElement; }
+    if (box) {
+      if (r.right < box.left || r.left > box.right || r.bottom < box.top || r.top > box.bottom) { hideCard(el); return; }
+      const t = Math.max(0, box.top - r.top), l = Math.max(0, box.left - r.left), b = Math.max(0, r.bottom - box.bottom), rr = Math.max(0, r.right - box.right);
+      clip = (t || l || b || rr) ? `inset(${t}px ${rr}px ${b}px ${l}px)` : '';
+    }
+    if (r.right < -50 || r.left > vw + 50 || r.bottom < -50 || r.top > vh + 50) { hideCard(el); return; }
+    const shape = slot.dataset.shape || shapeFor(r.width, r.height);
+    const wasOff = el.classList.contains('off');
+    if (el._slot !== slot) {
+      if (!wasOff && el._slot) fly(el);
+      else if (wasOff && el._last && state.flyFromLast) { place(el, el._last, true); fly(el); }
+      else if (wasOff) { place(el, r, true); }
+      el._slot = slot;
+    }
+    el.dataset.shape = shape; el.dataset.role = slot.dataset.role || '';
+    el.style.borderRadius = RADIUS[shape] || '12px';
+    el.style.clipPath = clip;
+    place(el, r, false);
+    el.classList.remove('off');
+    syncCardState(id);
+  });
+  cards.forEach((el, id) => { if (!claims.has(id)) hideCard(el); });
+  if (mode) requestAnimationFrame(() => requestAnimationFrame(() => layer.classList.remove(mode)));
+}
+function hideCard(el) {
+  if (!el.classList.contains('off')) { el._last = { left: parseFloat(el.style.left), top: parseFloat(el.style.top), width: parseFloat(el.style.width), height: parseFloat(el.style.height) }; }
+  el.classList.add('off'); el._slot = null; el.style.clipPath = '';
+}
+function fly(el) { el.classList.add('flying'); clearTimeout(el._ft); el._ft = setTimeout(() => el.classList.remove('flying'), 380); }
+
+// scroll & resize → instant re-layout
+let scrollIdle;
+document.addEventListener('scroll', () => { requestLayout('instant'); clearTimeout(scrollIdle); }, true);
+addEventListener('resize', () => { requestLayout('instant'); renderMaps(); });
+
+// ---------------------------------------------------------------- card interaction (click vs drag)
+let drag = null;
+function bindCard(el) {
+  el.addEventListener('pointerdown', (ev) => {
+    if (ev.button !== 0) return;
+    const id = el.dataset.id, role = el.dataset.role;
+    if (ev.target.closest('.act')) return;
+    drag = { el, id, role, x0: ev.clientX, y0: ev.clientY, started: false, ox: ev.clientX - el.getBoundingClientRect().left, oy: ev.clientY - el.getBoundingClientRect().top };
+    el.setPointerCapture(ev.pointerId);
+  });
+  el.addEventListener('pointermove', (ev) => {
+    if (!drag || drag.el !== el) return;
+    const dx = ev.clientX - drag.x0, dy = ev.clientY - drag.y0;
+    if (!drag.started) { if (Math.hypot(dx, dy) < 7) return; if (!['tray', 'day', 'gallery', 'leftout'].includes(drag.role)) return; startDrag(ev); }
+    el.style.left = (ev.clientX - drag.ox) + 'px'; el.style.top = (ev.clientY - drag.oy) + 'px';
+    dragOver(ev);
+  });
+  const end = (ev) => { if (!drag || drag.el !== el) return; const d = drag; drag = null; if (d.started) endDrag(d, ev); else cardClick(d.id, d.role, el, ev); };
+  el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
+  $('.act.add', el).addEventListener('click', (ev) => { ev.stopPropagation(); addToTray(el.dataset.id); });
+  $('.act.x', el).addEventListener('click', (ev) => { ev.stopPropagation(); const r = el.dataset.role; if (r === 'tray') removeFromTray(el.dataset.id); else if (r === 'day') dropFromPlan(el.dataset.id, 'you removed it'); });
+  el.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); cardClick(el.dataset.id, el.dataset.role, el, ev); } });
+}
+function startDrag(ev) {
+  drag.started = true; const el = drag.el; el.classList.add('dragging'); el.style.pointerEvents = 'none'; el.style.clipPath = '';
+  const r = el.getBoundingClientRect(); const w = Math.min(r.width, 120), h = Math.min(r.height, 120);
+  drag.ox = drag.ox * (w / r.width); drag.oy = drag.oy * (h / r.height);
+  el.style.width = w + 'px'; el.style.height = h + 'px';
+}
+function dragOver(ev) {
+  $$('.day.over,#tray.over').forEach(x => x.classList.remove('over'));
+  const t = document.elementFromPoint(ev.clientX, ev.clientY); if (!t) return;
+  const day = t.closest('.day:not(.endday)'); if (day && drag.role !== 'tray' && drag.role !== 'gallery') day.classList.add('over');
+  const tray = t.closest('#tray-wrap'); if (tray && (drag.role === 'gallery' || drag.role === 'tray')) $('#tray').classList.add('over');
+}
+function endDrag(d, ev) {
+  const el = d.el; el.classList.remove('dragging'); el.style.pointerEvents = '';
+  $$('.day.over,#tray.over').forEach(x => x.classList.remove('over'));
+  const t = document.elementFromPoint(ev.clientX, ev.clientY);
+  const dy = ev.clientY - d.y0;
+  if (d.role === 'tray') {
+    if (t && t.closest('#ribbon')) { pegToRibbon(d.id, ev.clientX); }
+    else if (t && t.closest('#board-map')) { state.hints[d.id] = true; toast(`Noted — ${D.byId[d.id].name} roughly here.`, { mono: 'map hint' }); }
+    else if (dy < -70) { removeFromTray(d.id); }
+    else if (t && t.closest('#tray')) { reorderTray(d.id, ev.clientX); }
+  } else if (d.role === 'gallery') {
+    if (t && t.closest('#tray-wrap')) addToTray(d.id); else if (t && t.closest('#ribbon')) { addToTray(d.id); pegToRibbon(d.id, ev.clientX); }
+  } else if (d.role === 'day' || d.role === 'leftout') {
+    const day = t && t.closest('.day:not(.endday)');
+    if (day) moveToDay(d.id, +day.dataset.day, ev.clientY, day);
+  }
+  requestLayout();
+}
+function cardClick(id, role, el, ev) {
+  if (role === 'gallery' || role === 'globe' || role === 'sugg') { if (role === 'globe') { pickDestination(D.destinations[0]); goStage('board'); } addToTray(id); }
+  else if (role === 'tray') { toggleMust(id); }
+  else if (role === 'day' || role === 'map' || role === 'leftout' || role === 'compare' || role === 'variant') { openHero(id, el); }
+}
+
+// ---------------------------------------------------------------- hero popover
+const hero = $('#hero');
+function openHero(id, anchor) {
+  const e = D.byId[id]; const inPlan = planHas(id); const inTray = state.tray.includes(id);
+  const w = D.warnings[id];
+  hero.innerHTML = `<div class="hslot" data-slot="${id}" data-shape="hero" data-prio="200" data-role="hero"></div>
+    <div class="hb"><p>${esc(e.blurb)}</p>
+    <div class="row"><span class="tag">${e.regionName}</span>${e.dur ? `<span class="tag">~${e.dur} h</span>` : ''}<span class="tag">${e.best}</span>${e.lead ? `<span class="tag">book ${e.lead} d ahead</span>` : ''}${e.season ? `<span class="tag">${e.season}</span>` : ''}</div>
+    ${w ? `<span class="flag ${w.level}">${ICON.flag}${esc(w.text)}</span>` : ''}
+    <div class="row">
+      ${state.stage === 'board' ? (inTray ? `<button class="btn quiet sm" data-act="must">${state.must.has(id) ? 'Un-must' : 'Make it a must'}</button><button class="btn quiet sm" data-act="remove">Remove</button>` : `<button class="btn primary sm" data-act="add">Add to board</button>`) : ''}
+      ${(state.stage === 'work' && state.mode === 'refine') ? (inPlan ? `<button class="btn quiet sm" data-act="lock">${state.locked.has(id) ? 'Unlock' : 'Lock'}</button><button class="btn quiet sm" data-act="drop">Drop</button><button class="btn quiet sm" data-act="chip">Reference in chat</button>` : `<button class="btn primary sm" data-act="readd">Put it back in</button>`) : ''}
+      ${(state.stage === 'work' && state.mode === 'options') ? `<button class="btn quiet sm" data-act="chip">Reference in chat</button>` : ''}
+      <button class="btn bare sm" data-act="close">Close</button>
+    </div></div>`;
+  hero.hidden = false;
+  const r = anchor.getBoundingClientRect();
+  let x = r.right + 12, y = r.top - 20; if (x + 350 > innerWidth) x = r.left - 352; if (x < 8) x = 8; y = clamp(y, 64, innerHeight - 380);
+  hero.style.left = x + 'px'; hero.style.top = y + 'px';
+  hero.onclick = (ev) => {
+    const b = ev.target.closest('[data-act]'); if (!b) return; const a = b.dataset.act;
+    if (a === 'close') closeHero();
+    if (a === 'add') { addToTray(id); closeHero(); }
+    if (a === 'must') { toggleMust(id); closeHero(); }
+    if (a === 'remove') { removeFromTray(id); closeHero(); }
+    if (a === 'lock') { toggleLock(id); closeHero(); }
+    if (a === 'drop') { dropFromPlan(id, 'you removed it'); closeHero(); }
+    if (a === 'readd') { readdToPlan(id); closeHero(); }
+    if (a === 'chip') { addChip({ kind: 'card', id }); closeHero(); }
+  };
+  requestLayout();
+}
+function closeHero() { hero.hidden = true; hero.innerHTML = ''; requestLayout(); }
+document.addEventListener('pointerdown', (ev) => { if (!hero.hidden && !ev.target.closest('#hero') && !ev.target.closest('.card')) closeHero(); });
+document.addEventListener('keydown', (ev) => { if (ev.key === 'Escape') closeHero(); });
+
+// ---------------------------------------------------------------- MAP (shared renderer)
+const maps = {};
+function project(el) {
+  const W = el.clientWidth, H = el.clientHeight; const pad = 28;
+  const lon0 = 79.55, lon1 = 81.95, lat0 = 5.85, lat1 = 9.95;
+  const sx = (W - pad * 2) / (lon1 - lon0), sy = (H - pad * 2) / (lat1 - lat0); const s = Math.min(sx, sy);
+  const ox = (W - (lon1 - lon0) * s) / 2, oy = (H - (lat1 - lat0) * s) / 2;
+  return (lon, lat) => [ox + (lon - lon0) * s, oy + (lat1 - lat) * s];
+}
+function renderMap(el, opts) {
+  maps[el.id] = opts;
+  const P = project(el); const W = el.clientWidth, H = el.clientHeight;
+  let svg = `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none">`;
+  for (let lon = 79; lon <= 82.5; lon += .5) { const [x] = P(lon, 7); svg += `<line class="grat" x1="${x}" y1="0" x2="${x}" y2="${H}"/>`; }
+  for (let lat = 5.5; lat <= 10; lat += .5) { const [, y] = P(80, lat); svg += `<line class="grat" x1="0" y1="${y}" x2="${W}" y2="${y}"/>`; }
+  const pts = D.outline.map(([lo, la]) => P(lo, la));
+  const path = 'M' + pts.map(p => p.map(v => v.toFixed(1)).join(',')).join('L') + 'Z';
+  svg += `<path class="land" d="${path}"/>`;
+  // region labels
+  const labels = opts.labels || Object.keys(D.regions);
+  for (const k of labels) { const r = D.regions[k]; const [x, y] = P(r.lon, r.lat); const big = opts.bases && opts.bases.includes(k); svg += `<text class="lbl ${big ? 'big' : ''}" x="${x + 10}" y="${y + (big ? 5 : 3)}">${r.name}</text>`; }
+  // dots for all entities (board)
+  if (opts.dots) for (const e of D.entities) { const [x, y] = P(e.lon, e.lat); svg += `<circle cx="${x}" cy="${y}" r="2.2" fill="var(--sk-ink-3)" opacity=".55"/>`; }
+  // thread
+  if (opts.route) {
+    const segs = opts.route; // [{from:{lon,lat}, to:{...}, mode}]
+    let halo = '', line = '', legs = '';
+    segs.forEach((sg, i) => {
+      const a = P(sg.from.lon, sg.from.lat), b = P(sg.to.lon, sg.to.lat);
+      const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2; const dx = b[0] - a[0], dy = b[1] - a[1]; const len = Math.hypot(dx, dy) || 1;
+      const bend = sg.mode === 'fly' ? .35 : .12; const cx = mx - dy / len * len * bend, cy = my + dx / len * len * bend;
+      const d = `M${a[0]},${a[1]} Q${cx},${cy} ${b[0]},${b[1]}`;
+      halo += `<path class="thread halo ${opts.animate ? 'anim' : ''}" d="${d}"/>`;
+      line += `<path class="thread ${sg.proposed ? 'proposed' : ''} ${opts.animate ? 'anim' : ''}" d="${d}" stroke-dasharray="${MODE_DASH[sg.proposed ? 'proposed' : sg.mode] || ''}"/>`;
+      if (sg.label) legs += `<text class="legs" x="${(a[0] + cx + b[0]) / 3 + 6}" y="${(a[1] + cy + b[1]) / 3 - 4}">${sg.label}</text>`;
+    });
+    svg += halo + line + legs;
+    if (opts.bases) for (const k of opts.bases) { const r = D.regions[k]; const [x, y] = P(r.lon, r.lat); svg += `<circle class="base" cx="${x}" cy="${y}" r="5"/>`; }
+  }
+  if (opts.conflicts) for (const [a, b] of opts.conflicts) { const A = P(D.byId[a].lon, D.byId[a].lat), B = P(D.byId[b].lon, D.byId[b].lat); svg += `<path class="conflict" d="M${A[0]},${A[1]} L${B[0]},${B[1]}"/><text class="legs" fill="var(--sk-bad)" x="${(A[0] + B[0]) / 2 + 6}" y="${(A[1] + B[1]) / 2}" style="fill:var(--sk-bad)">~${Math.round(haversine(D.byId[a], D.byId[b]) * 1.4 / 45)} h by road</text>`; }
+  svg += '</svg>';
+  let html = svg;
+  // stickers
+  if (opts.stickers !== false) html += D.mapStickers.map(s => { const [x, y] = P(s.lon, s.lat); return `<img class="stick" src="${s.src}" alt="" style="left:${x}px;top:${y}px;width:${s.w}px">`; }).join('');
+  // pin slots
+  html += '<div class="pins">' + (opts.pins || []).map(id => { const e = D.byId[id]; const [x, y] = P(e.lon, e.lat); return `<div class="pslot" data-slot="${id}" data-shape="pin" data-prio="${opts.pinPrio || 1}" data-role="map" style="left:${x}px;top:${y}px"></div>`; }).join('') + '</div>';
+  if (opts.title) html += `<div class="maptitle"><b>${opts.title}</b><span>${opts.subtitle || ''}</span></div>`;
+  if (opts.legend) html += `<div class="legend">${['drive', 'rail', 'fly'].map(m => `<div><svg viewBox="0 0 34 8"><path d="M1 4h32" stroke="var(--sk-thread)" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="${MODE_DASH[m]}"/></svg>${m}</div>`).join('')}</div>`;
+  el.innerHTML = html;
+  // ghost hover → focus
+  $$('.pslot', el).forEach(s => {
+    s.style.pointerEvents = 'auto';
+    s.addEventListener('pointerenter', () => { s.classList.add('focus', 'hover'); requestLayout('quick'); });
+    s.addEventListener('pointerleave', () => { s.classList.remove('focus', 'hover'); requestLayout('quick'); });
+  });
+  if (opts.animate) {
+    $$('.thread.anim', el).forEach((p, i) => { const L = p.getTotalLength(); const dash = p.getAttribute('stroke-dasharray'); p.style.strokeDasharray = `${L} ${L}`; p.style.strokeDashoffset = L; p.style.transition = `stroke-dashoffset 700ms ${Math.floor(i / 2) * 260}ms ease-out`; requestAnimationFrame(() => requestAnimationFrame(() => { p.style.strokeDashoffset = 0; })); if (dash) setTimeout(() => { p.style.strokeDasharray = dash; }, 700 + Math.floor(i / 2) * 260 + 50); });
+  }
+  requestLayout('instant');
+}
+function renderMaps() { for (const id in maps) { const el = document.getElementById(id); if (el && el.getClientRects().length) renderMap(el, maps[id]); } }
+
+// ---------------------------------------------------------------- STAGES
+const STAGES = ['globe', 'board', 'options', 'refine', 'export'];
+function goStage(s) {
+  closeHero();
+  const prev = state.stage;
+  state.stage = (s === 'options' || s === 'refine') ? 'work' : s;
+  state.reached.add(s);
+  $('#app').dataset.stage = state.stage;
+  $('#v-globe').hidden = state.stage !== 'globe';
+  $('#v-board').hidden = !(state.stage === 'board' || state.stage === 'questions');
+  $('#v-questions').hidden = state.stage !== 'questions';
+  $('#v-work').hidden = state.stage !== 'work';
+  $('#v-export').hidden = state.stage !== 'export';
+  if (s === 'options' || s === 'refine') { state.mode = s; $('#v-work').dataset.mode = s; }
+  $$('#crumbs button').forEach(b => { const k = b.dataset.go; b.disabled = !state.reached.has(k); b.classList.toggle('on', k === s || (k === 'board' && s === 'questions')); b.classList.toggle('done', state.reached.has(k) && k !== s); });
+  if (state.stage === 'globe') startGlobe(); else stopGlobe();
+  if (state.stage === 'board') { renderBoard(); }
+  if (state.stage === 'work') { renderWork(); }
+  if (state.stage === 'export') { renderExport(); }
+  renderTripline();
+  requestAnimationFrame(() => { renderMaps(); requestLayout(prev === state.stage ? 'instant' : undefined); });
+}
+$('#crumbs').addEventListener('click', (ev) => { const b = ev.target.closest('button'); if (!b || b.disabled) return; goStage(b.dataset.go); });
+function renderTripline() {
+  const t = $('#tripline'); if (!state.dest) { t.innerHTML = ''; return; }
+  t.innerHTML = `<span><b>${state.dest.name}</b></span><span class="mono">${fmtShort(state.start)} → ${fmtShort(state.end)}</span><span class="mono">${nights()} nights</span><span>${state.party}</span>`;
+}
+
+// theme
+$$('[data-theme]').forEach(b => b.addEventListener('click', () => { const t = b.dataset.theme; if (t === 'sys') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', t); $$('[data-theme]').forEach(x => x.setAttribute('aria-pressed', String(x === b))); try { localStorage.setItem('gander-theme', t); } catch (e) { } }));
+try { const t = localStorage.getItem('gander-theme'); if (t) { const b = $(`[data-theme="${t}"]`); b && b.click(); } } catch (e) { }
+
+// ---------------------------------------------------------------- 1 · GLOBE
+const gc = $('#globe'); const gctx = gc.getContext('2d');
+let gRot = 0, gRaf = null, gLast = 0, gPaused = false, gZoom = 0;
+const FEATURED = ['sigiriya', 'kandy-train', 'perahera', 'coconut-hill', 'yala-leopard', 'galle-fort'];
+const featOffsets = [[-26, 14], [22, 18], [-20, -16], [26, -12], [4, 28], [-4, -30]];
+function startGlobe() { if (gRaf) return; gLast = performance.now(); const feat = $('#globe-feat'); if (!feat.children.length) feat.innerHTML = FEATURED.map(id => `<div class="fslot" data-slot="${id}" data-shape="chip" data-prio="1" data-role="globe"></div>`).join(''); const tick = (t) => { gRaf = requestAnimationFrame(tick); const dt = Math.min(50, t - gLast); gLast = t; if (!gPaused) gRot += dt * 0.006; drawGlobe(); }; gRaf = requestAnimationFrame(tick); }
+function stopGlobe() { if (gRaf) cancelAnimationFrame(gRaf); gRaf = null; }
+$('#globe-feat').addEventListener('pointerover', () => gPaused = true); $('#globe-feat').addEventListener('pointerout', () => gPaused = false);
+function sph(lat, lon, rot) { const la = lat * Math.PI / 180, lo = (lon + rot) * Math.PI / 180; const tilt = -0.28; let x = Math.cos(la) * Math.sin(lo), y = Math.sin(la), z = Math.cos(la) * Math.cos(lo); const y2 = y * Math.cos(tilt) - z * Math.sin(tilt), z2 = y * Math.sin(tilt) + z * Math.cos(tilt); return [x, y2, z2]; }
+function drawGlobe() {
+  const box = gc.parentElement.getBoundingClientRect(); const dpr = devicePixelRatio || 1;
+  if (gc.width !== box.width * dpr || gc.height !== box.height * dpr) { gc.width = box.width * dpr; gc.height = box.height * dpr; }
+  const W = box.width, H = box.height; const ctx = gctx; ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, W, H);
+  const cs = getComputedStyle(document.documentElement); const ink = cs.getPropertyValue('--sk-ink').trim(), thread = cs.getPropertyValue('--sk-thread').trim(), bill = cs.getPropertyValue('--sk-bill').trim(), surface = cs.getPropertyValue('--sk-surface').trim(), ink3 = cs.getPropertyValue('--sk-ink-3').trim();
+  const R = Math.min(W, H) * 0.36 * (1 + gZoom * 2.2); const cx = W * 0.5 - gZoom * (W * 0.1), cy = H * 0.52;
+  const rot = -80.7 + 40 + gRot; // keep Sri Lanka drifting near the front
+  // sphere
+  const grd = ctx.createRadialGradient(cx - R * .35, cy - R * .4, R * .1, cx, cy, R); grd.addColorStop(0, surface); grd.addColorStop(1, cs.getPropertyValue('--sk-thread-soft').trim());
+  ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.fillStyle = grd; ctx.fill(); ctx.strokeStyle = thread; ctx.globalAlpha = .35; ctx.lineWidth = 1; ctx.stroke(); ctx.globalAlpha = 1;
+  // graticule
+  ctx.strokeStyle = thread; ctx.globalAlpha = .18; ctx.lineWidth = .7;
+  for (let lat = -60; lat <= 60; lat += 30) { ctx.beginPath(); let first = true; for (let lon = 0; lon <= 360; lon += 4) { const [x, y, z] = sph(lat, lon, rot); if (z < 0) { first = true; continue; } const px = cx + x * R, py = cy - y * R; if (first) { ctx.moveTo(px, py); first = false; } else ctx.lineTo(px, py); } ctx.stroke(); }
+  for (let lon = 0; lon < 360; lon += 30) { ctx.beginPath(); let first = true; for (let lat = -90; lat <= 90; lat += 3) { const [x, y, z] = sph(lat, lon, rot); if (z < 0) { first = true; continue; } const px = cx + x * R, py = cy - y * R; if (first) { ctx.moveTo(px, py); first = false; } else ctx.lineTo(px, py); } ctx.stroke(); }
+  ctx.globalAlpha = 1;
+  // cities
+  for (const [la, lo] of D.cities) { const [x, y, z] = sph(la, lo, rot); if (z < 0) continue; ctx.beginPath(); ctx.arc(cx + x * R, cy - y * R, 1.6 + z * 1.2, 0, Math.PI * 2); ctx.fillStyle = ink3; ctx.globalAlpha = .35 + z * .5; ctx.fill(); }
+  ctx.globalAlpha = 1;
+  // destinations
+  for (const d of D.destinations) { const [x, y, z] = sph(d.lat, d.lon, rot); if (z < 0) continue; const px = cx + x * R, py = cy - y * R; ctx.beginPath(); ctx.arc(px, py, d.ready ? 6 : 3.2, 0, Math.PI * 2); ctx.fillStyle = d.ready ? bill : thread; ctx.fill(); if (d.ready) { ctx.beginPath(); ctx.arc(px, py, 6 + 6 * (0.5 + 0.5 * Math.sin(performance.now() / 350)), 0, Math.PI * 2); ctx.strokeStyle = bill; ctx.globalAlpha = .4; ctx.lineWidth = 2; ctx.stroke(); ctx.globalAlpha = 1; ctx.fillStyle = ink; ctx.font = `600 13px ${cs.getPropertyValue('--sk-font-display')}`; ctx.fillText(d.name, px + 12, py + 4); } }
+  // featured cards on the sphere
+  const sl = D.destinations[0]; const slots = $$('#globe-feat .fslot');
+  slots.forEach((s, i) => { const [dlat, dlon] = featOffsets[i]; const [x, y, z] = sph(sl.lat + dlat, sl.lon + dlon, rot); if (z < 0.05) { s.style.display = 'none'; return; } s.style.display = ''; const lift = 1.16; const px = cx + x * R * lift, py = cy - y * R * lift; const sz = 56 + z * 44; s.style.left = px + 'px'; s.style.top = py + 'px'; s.style.width = sz + 'px'; s.style.height = sz * 1.25 + 'px'; s.style.opacity = String(z); });
+  layout('instant');
+}
+// search
+const whereIn = $('#where'), drop = $('#where-drop'); let selIdx = 0;
+function renderDrop() {
+  const q = whereIn.value.trim().toLowerCase(); const list = D.destinations.filter(d => !q || d.name.toLowerCase().includes(q) || (q === 'sri' || q === 'lanka'));
+  if (!list.length) { drop.hidden = true; return; }
+  drop.innerHTML = list.map((d, i) => `<button type="button" class="${i === selIdx ? 'sel' : ''}" data-i="${D.destinations.indexOf(d)}"><b>${d.name}</b><small>${d.sub}</small>${d.ready ? '<span class="ok">built</span>' : ''}</button>`).join(''); drop.hidden = false;
+}
+whereIn.addEventListener('focus', renderDrop); whereIn.addEventListener('input', () => { selIdx = 0; renderDrop(); });
+whereIn.addEventListener('keydown', (ev) => { if (ev.key === 'ArrowDown') { selIdx++; renderDrop(); ev.preventDefault(); } if (ev.key === 'ArrowUp') { selIdx = Math.max(0, selIdx - 1); renderDrop(); ev.preventDefault(); } if (ev.key === 'Enter') { const b = $('#where-drop button.sel') || $('#where-drop button'); if (b) b.click(); } if (ev.key === 'Escape') drop.hidden = true; });
+drop.addEventListener('click', (ev) => { const b = ev.target.closest('button'); if (!b) return; pickDestination(D.destinations[+b.dataset.i]); });
+document.addEventListener('pointerdown', (ev) => { if (!ev.target.closest('.search')) drop.hidden = true; });
+function pickDestination(d) {
+  drop.hidden = true;
+  if (!d.ready) { toast(`${d.name} isn't built in this prototype yet — Sri Lanka is.`, { action: 'Use Sri Lanka', onAction: () => pickDestination(D.destinations[0]) }); whereIn.value = ''; return; }
+  state.dest = d; whereIn.value = d.name; $('#go-board').disabled = false; renderTripline(); feasibility();
+}
+$('#d-start').addEventListener('change', () => { state.start = $('#d-start').value; feasibility(); renderTripline(); });
+$('#d-end').addEventListener('change', () => { state.end = $('#d-end').value; feasibility(); renderTripline(); });
+$$('#d-shape button').forEach(b => b.addEventListener('click', () => { $$('#d-shape button').forEach(x => x.setAttribute('aria-pressed', 'false')); b.setAttribute('aria-pressed', 'true'); state.shape = b.textContent.trim(); feasibility(); }));
+$$('#party .pill').forEach(b => b.addEventListener('click', () => { $$('#party .pill').forEach(x => x.classList.remove('on')); b.classList.add('on'); state.party = b.textContent.trim(); renderTripline(); }));
+function feasibility() {
+  const n = nights(); $('#d-len').textContent = `${n} nights · ${days()} days`;
+  const f = $('#feas'); f.classList.remove('tight');
+  let txt;
+  if (state.shape === 'Not sure') txt = 'No dates yet — the board will show you what\'s worth timing a trip for. August has the Kandy Perahera and the Minneriya elephant gathering.';
+  else if (n < 6) { txt = `${n} nights is tight for the whole island — want to focus on the hills, or the south coast?`; f.classList.add('tight'); }
+  else if (n < 10) txt = `${n} nights covers the hills and one coast comfortably. Sigiriya and a safari fit if you keep moving.`;
+  else if (n <= 16) txt = `${n} nights is the classic Sri Lanka loop — enough for the hills, a safari and the coast.`;
+  else txt = `${n} nights is generous — room for the east coast, which is in season in August.`;
+  $('span', f).textContent = txt;
+}
+feasibility();
+$('#go-board').addEventListener('click', () => { if (!state.dest) return; zoomToIsland(() => goStage('board')); });
+$('#express').addEventListener('click', () => { pickDestination(D.destinations[0]); ['sigiriya', 'kandy-train', 'perahera', 'yala-leopard', 'galle-fort', 'coconut-hill', 'nine-arch', 'minneriya', 'villa', 'pettah'].forEach(id => { if (!state.tray.includes(id)) state.tray.push(id); }); state.must.add('perahera'); state.must.add('sigiriya'); zoomToIsland(() => { goStage('board'); setTimeout(startQuestions, 500); }); });
+function zoomToIsland(done) { const t0 = performance.now(); const step = (t) => { gZoom = clamp((t - t0) / 650, 0, 1); if (gZoom < 1) requestAnimationFrame(step); else { done(); gZoom = 0; } }; requestAnimationFrame(step); }
+
+// ---------------------------------------------------------------- 2 · BOARD
+function renderBoard() {
+  renderShelves(); renderTray(); renderRibbon(); renderMeter();
+  renderMap($('#board-map'), { dots: true, pins: state.tray, pinPrio: 1, title: 'Sri Lanka', subtitle: `${fmtShort(state.start)} – ${fmtShort(state.end)} · ${nights()} nights` });
+}
+function nearShelf() {
+  if (!state.tray.length) return [];
+  const near = new Map();
+  for (const e of D.entities) { if (state.tray.includes(e.id)) continue; let best = 1e9; for (const t of state.tray) best = Math.min(best, haversine(e, D.byId[t])); if (best < 45) near.set(e.id, best); }
+  return [...near.entries()].sort((a, b) => a[1] - b[1]).slice(0, 8).map(x => x[0]);
+}
+function renderShelves() {
+  const c = $('#board-shelves'); c.classList.add('clip');
+  const sizes = ['', 'tall', 'wide', '', 'wide', 'tall', '', ''];
+  let html = `<div class="board-h"><div><h2>Build it out of photographs.</h2><p>Tap what you want. Gander reads each photo as a place, a duration, a season and a booking — you just pick.</p></div>
+    <div class="sugg" id="sugg" hidden></div></div>`;
+  for (const sh of D.shelves) {
+    const ids = sh.dynamic ? nearShelf() : sh.ids;
+    const why = sh.id === 'dates' ? `${fmtShort(state.start)} – ${fmtShort(state.end)} · events and seasonal moments` : sh.why;
+    html += `<div class="shelf ${ids.length ? '' : 'empty'}" data-shelf="${sh.id}"><div class="shelf-h"><h3>${sh.title}</h3><span class="why">${why}</span></div>
+      <div class="shelf-row clip">${ids.length ? ids.map((id, i) => `<div class="tslot ${sizes[(i + sh.title.length) % sizes.length]}" data-slot="${id}" data-shape="tile" data-prio="1" data-role="gallery"></div>`).join('') : '<span>Add something and this shelf fills with what\'s nearby.</span>'}</div></div>`;
+  }
+  c.innerHTML = html;
+  // hover a gallery card → pulse its dot on the map (via focus of a temp pin)
+  requestLayout('instant');
+}
+function renderTray() {
+  const t = $('#tray');
+  if (!state.tray.length) { t.innerHTML = `<div class="empty"><i></i>Your tray. Tap any photo to start.</div>`; }
+  else t.innerHTML = state.tray.map(id => `<div class="tslot" data-slot="${id}" data-shape="chip" data-prio="2" data-role="tray"></div>`).join('');
+  const pi = $('#plan-it'); pi.disabled = !state.tray.length;
+  const m = meter(); pi.innerHTML = (m.ratio > 1.15 ? 'Plan it — I\'ll help you cut' : m.ratio > 0.92 ? 'Plan it (tight)' : 'Plan it') + ` <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>`;
+  requestLayout();
+}
+// fisheye
+$('#tray').addEventListener('pointermove', (ev) => { if (drag) return; const slots = $$('#tray .tslot'); slots.forEach(s => { const r = s.getBoundingClientRect(); const d = Math.abs(ev.clientX - (r.left + r.width / 2)); const f = Math.max(0, 1 - d / 130); s.style.flexGrow = String(1 + 1.1 * f * f); s.style.height = (56 + 16 * f * f) + 'px'; s.style.maxWidth = (96 + 60 * f * f) + 'px'; }); requestLayout('quick'); });
+$('#tray').addEventListener('pointerleave', () => { $$('#tray .tslot').forEach(s => { s.style.flexGrow = ''; s.style.height = ''; s.style.maxWidth = ''; }); requestLayout('quick'); });
+function meter() {
+  const hours = state.tray.reduce((a, id) => a + (D.byId[id].dur || 0), 0);
+  const regions = new Set(state.tray.map(id => D.byId[id].region));
+  const need = hours / 7 + Math.max(0, regions.size - 1) * 0.55 + (state.tray.some(id => D.byId[id].region === 'trinco' || D.byId[id].region === 'arugam') && state.tray.some(id => ['galle', 'mirissa', 'hikkaduwa'].includes(D.byId[id].region)) ? 1.5 : 0);
+  return { need, have: days(), ratio: need / days() };
+}
+function renderMeter() {
+  const m = meter(); const fill = $('#meter-fill'); const pct = clamp(m.ratio * 100, 0, 100);
+  requestAnimationFrame(() => { fill.style.width = pct + '%'; fill.style.background = m.ratio > 1.05 ? 'var(--sk-bad)' : m.ratio > 0.9 ? 'var(--sk-warn)' : 'var(--sk-ok)'; });
+  const n = Math.round(m.need * 2) / 2;
+  $('#meter-txt').innerHTML = state.tray.length ? `About <strong>${n} day${n === 1 ? '' : 's'}</strong> of things for a <strong>${m.have}-day</strong> trip` : `<strong>${m.have} days</strong> to fill`;
+}
+function renderRibbon() {
+  const r = $('#ribbon'); const n = days(); let html = '<div class="track"></div>';
+  for (let i = 0; i < n; i++) { const x = (i + .5) / n * 100; const d = dateOf(i); html += `<span class="d ${i === 0 ? 'first' : i === n - 1 ? 'last' : ''}" style="left:${x}%">${i === 0 || i === n - 1 || n <= 10 || i % 2 === 0 ? `${DOW[d.getDay()][0]} ${d.getDate()}` : ''}</span>`; }
+  for (const id of state.tray) { const e = D.byId[id]; let di = null, hard = false; if (e.date) { di = dayIndexOf(e.date); hard = true; } else if (state.pegs[id] != null) di = state.pegs[id]; if (di == null || di < 0 || di >= n) continue; const x = (di + .5) / n * 100; html += `<div class="peg ${hard ? 'hard' : 'soft'}" style="left:${x}%" title="${esc(e.name)} · ${fmtD(dateOf(di))}"><div class="pslot" data-slot="${id}" data-shape="pin" data-prio="1" data-role="peg"></div><s></s></div>`; }
+  r.innerHTML = html;
+}
+function pegToRibbon(id, clientX) { const r = $('#ribbon').getBoundingClientRect(); const di = clamp(Math.floor((clientX - r.left) / r.width * days()), 0, days() - 1); state.pegs[id] = di; renderRibbon(); toast(`${D.byId[id].name} pegged to ${fmtD(dateOf(di))}`, { mono: 'soft peg' }); requestLayout(); }
+function addToTray(id) {
+  if (state.tray.includes(id)) { toggleMust(id); return; }
+  state.tray.push(id); renderTray(); renderMeter(); renderRibbon();
+  renderMap($('#board-map'), { ...maps['board-map'], pins: state.tray });
+  refreshNear(id);
+  suggest(id);
+}
+function refreshNear(id) {
+  const sh = $('[data-shelf="near"]'); if (!sh) return; const ids = nearShelf(); sh.classList.toggle('empty', !ids.length);
+  const sizes = ['', 'tall', 'wide', '', 'wide', 'tall', '', ''];
+  $('.shelf-row', sh).innerHTML = ids.length ? ids.map((x, i) => `<div class="tslot ${sizes[i % sizes.length]}" data-slot="${x}" data-shape="tile" data-prio="1" data-role="gallery"></div>`).join('') : '<span>Add something and this shelf fills with what\'s nearby.</span>';
+  requestLayout();
+}
+const SUGG = { sigiriya: 'pidurangala', 'coconut-hill': 'parrot-rock', 'galle-fort': 'galle-cafe', 'kandy-train': 'nine-arch', 'yala-leopard': 'yala-elephant', perahera: 'guesthouse', minneriya: 'dambulla', 'nine-arch': 'tea-mist', villa: 'king-coconut', pettah: 'garden-dinner', trinco: 'arugam', unawatuna: 'roti' };
+function suggest(id) {
+  const s = SUGG[id]; const box = $('#sugg'); if (!s || state.tray.includes(s)) { box.hidden = true; return; }
+  box.hidden = false; box.innerHTML = `<div class="sslot" data-slot="${s}" data-shape="chip" data-prio="1" data-role="sugg"></div><span>${esc(D.byId[id].name)} added — <b>${esc(D.byId[s].name)}</b> is right there.</span><button class="btn bare sm" type="button">Add</button>`;
+  $('button', box).addEventListener('click', () => { addToTray(s); box.hidden = true; });
+  requestLayout();
+}
+function removeFromTray(id) { state.tray = state.tray.filter(x => x !== id); state.must.delete(id); delete state.pegs[id]; renderTray(); renderMeter(); renderRibbon(); refreshNear(); renderMap($('#board-map'), { ...maps['board-map'], pins: state.tray }); toast(`Removed ${D.byId[id].name}`, { action: 'Undo', onAction: () => addToTray(id) }); }
+function toggleMust(id) { if (state.must.has(id)) state.must.delete(id); else state.must.add(id); syncCardState(id); toast(state.must.has(id) ? `${D.byId[id].name} is a must-have` : `${D.byId[id].name} back to optional`, { ms: 1600 }); if (state.stage === 'work') renderStats(); }
+function reorderTray(id, clientX) { const slots = $$('#tray .tslot').filter(s => s.dataset.slot !== id); let idx = slots.findIndex(s => clientX < s.getBoundingClientRect().left + s.getBoundingClientRect().width / 2); if (idx < 0) idx = slots.length; state.tray = state.tray.filter(x => x !== id); state.tray.splice(idx, 0, id); renderTray(); }
+$('#plan-it').addEventListener('click', startQuestions);
+
+// ---------------------------------------------------------------- 3 · QUESTIONS
+function buildQuestions() {
+  const q = []; const T = state.tray;
+  const south = T.some(id => ['galle', 'mirissa', 'hikkaduwa'].includes(D.byId[id].region)); const east = T.some(id => ['trinco', 'arugam'].includes(D.byId[id].region));
+  if (T.includes('whales')) q.push(D.questions.whales);
+  if (south && east) q.push(D.questions.coasts);
+  q.push(D.questions.pace, D.questions.base, D.questions.budget);
+  return q.slice(0, 5);
+}
+function startQuestions() {
+  state.questions = buildQuestions(); state.qi = 0; state.answers = {};
+  state.stage = 'questions'; $('#app').dataset.stage = 'questions'; $('#v-questions').hidden = false;
+  renderQuestion();
+}
+function renderQuestion() {
+  const q = state.questions[state.qi]; const c = $('#qcard');
+  if (!q) { finishQuestions(); return; }
+  const conflicts = q.map ? [[q.map[0], q.map[1]]] : null;
+  renderMap($('#board-map'), { ...maps['board-map'], conflicts, pins: state.tray });
+  const prog = state.questions.map((x, i) => `<i class="${i === state.qi ? 'on' : i < state.qi ? 'done' : ''}"></i>`).join('');
+  let body = '';
+  if (q.kind === 'conflict' || q.kind === 'pick') body = `<div class="qopts">${q.options.map(o => o.img ? `<button class="qopt img" data-k="${o.k}"><div class="ph" style="background-image:url('assets/${o.img}')"></div><div class="tx"><b>${o.label}</b><small>${o.note}</small></div></button>` : `<button class="qopt" data-k="${o.k}"><b>${o.label}</b><small>${o.note}</small></button>`).join('')}</div>`;
+  if (q.kind === 'slider') body = `<div class="qslider"><input type="range" min="0" max="100" value="55" id="q-range"><div class="ends"><span>${q.min}</span><span>Balanced</span><span>${q.max}</span></div></div>`;
+  c.innerHTML = `<img class="qmini" src="${D.deco.splashOrange}" alt=""><div class="prog">${prog}<span>${state.qi + 1} of ${state.questions.length}</span></div><h2>${q.title}</h2><p>${q.body}</p>${body}
+    <div class="qfoot"><button class="btn bare" data-k="__decide">Just decide for me</button>${q.kind === 'slider' ? '<button class="btn ink" data-k="__slider">Next</button>' : '<span class="label">pick one</span>'}</div>`;
+  c.onclick = (ev) => { const b = ev.target.closest('[data-k]'); if (!b) return; let k = b.dataset.k; if (k === '__decide') k = q.kind === 'slider' ? 55 : (q.options[0].k); if (k === '__slider') k = +$('#q-range').value; state.answers[q.id] = k; state.qi++; renderQuestion(); };
+}
+function finishQuestions() { $('#v-questions').hidden = true; generate(); }
+
+// ---------------------------------------------------------------- 4 · GENERATION
+function buildOptions() {
+  // Start from the three authored options, then honour the answers: whales, coasts, pace.
+  const A = state.answers; const opts = JSON.parse(JSON.stringify(D.options));
+  const pace = +(A['q-pace'] ?? 55);
+  for (const o of opts) {
+    if (pace < 35) { for (const d of o.days) if (d.slots.length > 2) d.slots = d.slots.slice(0, 2); }
+    if (pace > 75) { for (const d of o.days) if (d.slots.length === 1 && !d.end) { const extra = ['king-coconut', 'curry', 'roti'].find(x => !d.slots.some(s => s.id === x)); d.slots.push({ id: extra, t: '12:30' }); } }
+    if (A['q-whales'] === 'keep') { const md = o.days.find(d => d.base === 'mirissa'); if (md) md.slots.unshift({ id: 'whales', t: '06:30' }); }
+    // fold tray items the planner can fit: any tray item whose region is a base and which isn't scheduled → drop into the first day at that base with < 3 slots
+    for (const id of state.tray) { if (o.days.some(d => d.slots.some(s => s.id === id))) continue; const e = D.byId[id]; if (e.type === 'stay' || e.offSeason) continue; const day = o.days.find(d => d.base === e.region && !d.end && d.slots.length < 3); if (day) day.slots.push({ id, t: e.best === 'dawn' ? '06:30' : e.best === 'dusk' ? '17:30' : e.best === 'night' ? '19:30' : '11:00' }); }
+    // trim days to the trip length
+    const n = days(); if (o.days.length > n) { o.days = o.days.slice(0, n - 1).concat([o.days[o.days.length - 1]]); } while (o.days.length < n) o.days.splice(o.days.length - 1, 0, { base: o.days[o.days.length - 2].base, slots: [] });
+  }
+  if (A['q-coasts'] === 'east' || A['q-whales'] === 'swap') opts.unshift(opts.splice(2, 1)[0]);
+  if (A['q-base'] === 'bases' && opts[0].id !== 'slow') { const i = opts.findIndex(o => o.id === 'slow'); opts.unshift(opts.splice(i, 1)[0]); }
+  return opts;
+}
+function generate() {
+  state.options = buildOptions(); state.optIdx = 0; state.plan = null; state.removed = {}; state.history = []; state.compare = false;
+  state.flyFromLast = true;
+  goStage('options');
+  const gen = $('#gen'); gen.hidden = false;
+  const lines = [`Reading ${state.tray.length} pins across ${new Set(state.tray.map(id => D.byId[id].region)).size} regions…`, 'Checking August: Perahera, the Gathering, monsoon on the south-west…', 'Pricing transit between bases…', 'Building three different shapes…'];
+  let i = 0; const tick = () => { if (i < lines.length) { $('#gen-txt').innerHTML = `${lines[i]}`; i++; setTimeout(tick, 650); } else { gen.hidden = true; } }; tick();
+  $('#chat-log').innerHTML = ''; $('#chat-sub').textContent = 'building options';
+  chatSys(`Board · ${state.tray.length} pins · ${state.must.size} must-haves`);
+  setTimeout(() => plannerSay(`I read your board. ${state.must.size ? `Must-haves first: ${[...state.must].map(id => D.byId[id].name).join(', ')}.` : ''} Here are three shapes for ${nights()} nights — each one drops something, and says why.`), 900);
+  setTimeout(() => { state.flyFromLast = false; $('#chat-sub').textContent = 'three options ready'; plannerSay('Pick a tab to walk through it, or Compare to see them side by side. When one feels right, <b>Go with this one</b> and we\'ll refine it together.'); }, 3800);
+}
+function optionRoute(o) {
+  const segs = []; let prev = null;
+  o.days.forEach((d) => { if (prev && d.base !== prev) { const a = D.regions[prev], b = D.regions[d.base]; const mode = d.leg ? d.leg.mode : 'drive'; segs.push({ from: a, to: b, mode, label: d.leg ? `${mode} · ${Math.floor(d.leg.min / 60)}h${d.leg.min % 60 ? (' ' + d.leg.min % 60) : ''}` : '' }); } prev = d.base; });
+  return segs;
+}
+function optionStats(o) {
+  let km = 0, mins = 0, beds = 1, prev = null;
+  o.days.forEach(d => { if (prev && d.base !== prev) { km += haversine(D.regions[prev], D.regions[d.base]) * 1.35; beds++; mins += d.leg ? d.leg.min : Math.round(haversine(D.regions[prev], D.regions[d.base]) * 1.35 / 40 * 60); } prev = d.base; });
+  const sched = new Set(o.days.flatMap(d => d.slots.map(s => s.id)));
+  const musts = [...state.must]; const mustIn = musts.filter(id => sched.has(id)).length;
+  const bud = state.answers['q-budget']; const cost = bud === 'v' ? '€€€' : bud === 'g' ? '€' : '€€';
+  const bookable = [...sched].filter(id => D.byId[id].lead > 0); const booked = bookable.filter(id => state.booked.has(id)).length;
+  const free = o.days.filter(d => !d.end && d.slots.length <= 1).length;
+  return { km: Math.round(km), hours: Math.round(mins / 60 * 10) / 10, beds, mustIn, musts: musts.length, cost, booked, bookable: bookable.length, free, sched };
+}
+function currentOption() { return state.mode === 'refine' ? state.plan : state.options[state.optIdx]; }
+function planHas(id) { const o = currentOption(); return !!o && o.days.some(d => d.slots.some(s => s.id === id)); }
+function leftOut(o) { const s = optionStats(o).sched; return state.tray.filter(id => !s.has(id)).map(id => ({ id, reason: state.removed[id] || (o.reasons && o.reasons[id]) || (D.byId[id].type === 'stay' ? 'stays are set per base' : 'no room on this route') })); }
+
+function renderWork() {
+  const o = currentOption(); if (!o) return;
+  // tabs
+  $('#tabs').innerHTML = state.options.map((x, i) => { const st = optionStats(x); return `<button class="tab" role="tab" aria-selected="${i === state.optIdx}" data-i="${i}" style="--acc:${x.accent}"><span class="th"><i></i>${x.thesis}</span><span class="tr">${x.tag} · ${x.trade}${st.mustIn < st.musts ? ` · <b>${st.musts - st.mustIn} must-have${st.musts - st.mustIn > 1 ? 's' : ''} out</b>` : ''}</span></button>`; }).join('');
+  $$('#tabs .tab').forEach(t => t.addEventListener('click', () => { state.optIdx = +t.dataset.i; state.compare = false; $('#compare').textContent = 'Compare'; renderWork(); }));
+  $('#chosen-title').textContent = o.thesis; $('#chosen-sub').textContent = `${nights()} nights · ${fmtShort(state.start)} – ${fmtShort(state.end)} · v${state.history.length + 1}`;
+  $('#choose').hidden = state.mode !== 'options'; $('#compare').hidden = state.mode !== 'options'; $('#to-export').hidden = state.mode !== 'refine';
+  renderDays(); renderStats(); renderVariants();
+  renderMap($('#dash-map'), { route: optionRoute(o), bases: [...new Set(o.days.map(d => d.base))], labels: [...new Set(o.days.map(d => d.base))], pins: o.days.flatMap(d => d.slots.map(s => s.id)), pinPrio: 1, animate: true, legend: true, title: o.thesis, subtitle: `${optionStats(o).km} km · ${optionStats(o).beds} beds` });
+  renderQuick();
+}
+function transitSVG(mode) { return `<svg viewBox="0 0 44 20"><path d="M22 0v20" stroke="var(--sk-thread)" stroke-width="2" stroke-dasharray="${MODE_DASH[mode] || ''}" stroke-linecap="round"/></svg>`; }
+function renderDays() {
+  const c = $('#dash-days'); c.classList.add('clip');
+  if (state.compare) { renderCompare(); return; }
+  c.classList.remove('compare');
+  const o = currentOption(); const prio = 2;
+  let html = '';
+  o.days.forEach((d, i) => {
+    const date = dateOf(i); const r = D.regions[d.base];
+    if (d.end) { html += `<div class="day endday" data-day="${i}"><b>Fly home</b>${fmtD(date)}<br>from Colombo</div>`; return; }
+    let inner = `<div class="day-h" data-day="${i}"><div><h4>Day ${i + 1}</h4><span class="base">${r.name}</span></div><span class="d">${fmtD(date)}</span></div>`;
+    if (d.leg) inner += `<div class="transit">${transitSVG(d.leg.mode)}<span class="m">${d.leg.mode} · ${Math.floor(d.leg.min / 60)}h${d.leg.min % 60 ? ' ' + d.leg.min % 60 : ''}${d.leg.note ? ' · ' + d.leg.note : ''}</span></div>`;
+    d.slots.forEach((s, j) => {
+      const e = D.byId[s.id]; const w = D.warnings[s.id]; const lockd = state.locked.has(s.id);
+      if (j > 0) { const p = D.byId[d.slots[j - 1].id]; const km = haversine(p, e); const mode = km < 1.5 ? 'walk' : 'drive'; inner += `<div class="transit">${transitSVG(mode)}<span class="m">${mode} · ${km < 1.5 ? Math.max(5, Math.round(km * 14)) + ' min' : Math.max(10, Math.round(km * 1.3 / 35 * 60)) + ' min'}</span></div>`; }
+      inner += `<div class="slot"><div class="dslot" data-slot="${s.id}" data-shape="chip" data-prio="${prio}" data-role="day"></div><div><div class="t" data-ref="${s.id}">${esc(e.name)}</div><div class="m">${s.t}${e.dur ? ` · ~${e.dur} h` : ''}${e.type === 'stay' ? ' · check in' : ''}</div>${w ? `<span class="flag ${w.level}">${ICON.flag}${esc(w.text)}</span>` : ''}${state.mode === 'refine' ? `<div class="tools"><button data-lock="${s.id}" class="${lockd ? 'on' : ''}" title="${lockd ? 'Unlock' : 'Lock — the planner may not move this'}">${ICON.lock}${lockd ? 'locked' : 'lock'}</button><button data-drop="${s.id}" title="Remove from the plan">${ICON.x}</button></div>` : ''}</div></div>`;
+    });
+    if (d.slots.length <= 1) inner += `<div class="free">${d.slots.length ? '~5 h free' : 'a free day'} · ${r.name}</div>`;
+    inner += `<div class="stay"><i></i>sleep in ${r.name}</div>`;
+    html += `<div class="day ${state.changedDay === i ? 'changed' : ''}" data-day="${i}">${inner}</div>`;
+  });
+  const lo = leftOut(o);
+  html += `<div class="leftout"><h4>Left out <span>${lo.length}</span></h4>${lo.length ? lo.map(x => `<div class="lo"><div class="loslot" data-slot="${x.id}" data-shape="chip" data-prio="1" data-role="leftout"></div><div><div class="t">${esc(D.byId[x.id].name)}</div><div class="r">${esc(x.reason)}</div>${state.mode === 'refine' ? `<button data-readd="${x.id}">Put it back in</button>` : `<button data-chipq="${x.id}">Ask why</button>`}</div></div>`).join('') : '<div class="r" style="font-family:var(--sk-font-data);font-size:10px;color:var(--sk-ink-3)">Everything on your board is in.</div>'}</div>`;
+  c.innerHTML = html; state.changedDay = null;
+  c.onclick = (ev) => {
+    const b = ev.target.closest('button,[data-ref],.day-h'); if (!b) return;
+    if (b.dataset.lock) toggleLock(b.dataset.lock);
+    else if (b.dataset.drop) dropFromPlan(b.dataset.drop, 'you removed it');
+    else if (b.dataset.readd) readdToPlan(b.dataset.readd);
+    else if (b.dataset.chipq) { addChip({ kind: 'card', id: b.dataset.chipq }); $('#chat-in').value = 'why is this left out?'; $('#chat-in').focus(); }
+    else if (b.dataset.ref) addChip({ kind: 'card', id: b.dataset.ref });
+    else if (b.classList.contains('day-h')) addChip({ kind: 'day', i: +b.dataset.day });
+  };
+  requestLayout();
+}
+function renderCompare() {
+  const c = $('#dash-days'); c.classList.add('compare');
+  c.innerHTML = state.options.map((o, oi) => { const st = optionStats(o); return `<div class="day" style="width:auto;border-color:${oi === state.optIdx ? 'var(--sk-ink)' : 'var(--sk-line)'}" data-opt="${oi}"><div class="day-h"><div><h4 style="color:${o.accent}">${o.thesis}</h4><span class="base">${o.tag}</span></div><span class="d">${st.km} km · ${st.beds} beds</span></div>${o.days.map((d, i) => d.end ? '' : `<div class="slot" style="grid-template-columns:52px 1fr"><div class="m" style="margin:0">D${i + 1}<br>${D.regions[d.base].name.slice(0, 7)}</div><div style="display:flex;gap:3px;flex-wrap:wrap">${d.slots.map(s => `<div class="dslot" style="width:26px;height:26px;border-radius:6px" data-slot="${s.id}" data-shape="pin" data-prio="${oi === state.optIdx ? 2 : 1}" data-role="compare"></div>`).join('')}</div></div>`).join('')}<button class="btn quiet sm" data-pick="${oi}" style="margin-top:6px">Walk through this one</button></div>`; }).join('');
+  c.onclick = (ev) => { const b = ev.target.closest('[data-pick]'); if (b) { state.optIdx = +b.dataset.pick; state.compare = false; $('#compare').textContent = 'Compare'; renderWork(); } };
+  requestLayout();
+}
+$('#compare').addEventListener('click', () => { state.compare = !state.compare; $('#compare').textContent = state.compare ? 'Walk through' : 'Compare'; renderDays(); });
+function renderStats() {
+  const o = currentOption(); if (!o) return; const st = optionStats(o); const c = $('#dash-stats');
+  const prev = c._prev || {};
+  const cell = (k, v, unit, cls) => `<div class="stat ${cls || ''}"><div class="v ${prev[k] !== undefined && prev[k] !== v ? 'bump' : ''}">${v}${unit ? `<small>${unit}</small>` : ''}</div><div class="k">${k}</div></div>`;
+  c.innerHTML = cell('travelled', st.km, 'km') + cell('in transit', st.hours, 'h', st.hours > 14 ? 'warn' : '') + cell('beds', st.beds, '', st.beds > 6 ? 'warn' : '') + cell('must-haves', `${st.mustIn}<small>/ ${st.musts}</small>`, '', st.mustIn < st.musts ? 'bad' : 'ok') + cell('cost band', st.cost) + cell('free days', st.free) + (state.mode === 'refine' ? cell('booked', `${st.booked}<small>/ ${st.bookable}</small>`, '', st.booked === st.bookable ? 'ok' : '') : '');
+  c._prev = { travelled: st.km, 'in transit': st.hours, beds: st.beds };
+}
+$('#choose').addEventListener('click', () => {
+  state.plan = JSON.parse(JSON.stringify(state.options[state.optIdx])); state.history = []; state.compare = false;
+  goStage('refine');
+  plannerSay(`<b>${state.plan.thesis}</b> it is. Drag things between days, lock what must not move, or just tell me. Every change shows what it costs and has an undo.`);
+  $('#chat-sub').textContent = 'refining';
+});
+$('#to-export').addEventListener('click', () => goStage('export'));
+
+// ---------------------------------------------------------------- refine: edits, locks, undo
+function snapshot(msg) { state.history.push({ plan: JSON.parse(JSON.stringify(state.plan)), removed: { ...state.removed }, locked: new Set(state.locked), msg }); }
+function undo() { const h = state.history.pop(); if (!h) return; state.plan = h.plan; state.removed = h.removed; state.locked = h.locked; renderWork(); chatSys(`undid · ${h.msg}`); }
+function findSlot(id) { for (let i = 0; i < state.plan.days.length; i++) { const j = state.plan.days[i].slots.findIndex(s => s.id === id); if (j >= 0) return { i, j }; } return null; }
+function applyChange(msg, delta, fn) {
+  const before = optionStats(state.plan); snapshot(msg); fn(); const after = optionStats(state.plan);
+  renderWork();
+  const d = []; if (after.km !== before.km) d.push(`${after.km - before.km > 0 ? '+' : ''}${after.km - before.km} km`); if (after.hours !== before.hours) d.push(`${after.hours - before.hours > 0 ? '+' : ''}${Math.round((after.hours - before.hours) * 10) / 10} h transit`); if (after.beds !== before.beds) d.push(`${after.beds - before.beds > 0 ? '+' : ''}${after.beds - before.beds} beds`); if (after.mustIn !== before.mustIn) d.push(`must-haves ${after.mustIn}/${after.musts}`);
+  plannerSay(msg, { undo: true, delta: (delta || []).concat(d) });
+}
+function toggleLock(id) { if (state.locked.has(id)) state.locked.delete(id); else state.locked.add(id); syncCardState(id); renderDays(); chatSys(`${state.locked.has(id) ? 'locked' : 'unlocked'} · ${D.byId[id].name}`); }
+function dropFromPlan(id, reason) { const p = findSlot(id); if (!p) return; if (state.locked.has(id)) { plannerSay(`${D.byId[id].name} is locked — unlock it first if you want it out.`); return; } state.changedDay = p.i; applyChange(`Dropped ${D.byId[id].name} from day ${p.i + 1}.`, [], () => { state.plan.days[p.i].slots.splice(p.j, 1); state.removed[id] = reason; }); }
+function readdToPlan(id) {
+  const e = D.byId[id]; if (e.offSeason) { plannerSay(`${e.name} is off-season in August — I can put it in, but expect the boats to stay in port. Say "add it anyway" if you want it.`); return; }
+  let best = -1, bestScore = -1e9;
+  state.plan.days.forEach((d, i) => { if (d.end) return; let s = -d.slots.length * 2; if (d.base === e.region) s += 10; else s -= haversine(D.regions[d.base], e) / 20; if (s > bestScore) { bestScore = s; best = i; } });
+  state.changedDay = best; applyChange(`Put ${e.name} back in on day ${best + 1} (${D.regions[state.plan.days[best].base].name}).`, [], () => { delete state.removed[id]; state.plan.days[best].slots.push({ id, t: e.best === 'dawn' ? '06:30' : e.best === 'dusk' ? '17:30' : e.best === 'night' ? '19:30' : '11:00' }); sortDay(best); });
+}
+function sortDay(i) { state.plan.days[i].slots.sort((a, b) => a.t.localeCompare(b.t)); }
+function moveToDay(id, di, clientY, dayEl) {
+  if (state.mode !== 'refine') { plannerSay('Choose an option first, then you can move things around.'); return; }
+  if (state.locked.has(id)) { plannerSay(`${D.byId[id].name} is locked.`); return; }
+  const p = findSlot(id); const e = D.byId[id];
+  const tIdx = $$('.slot', dayEl).findIndex(s => clientY < s.getBoundingClientRect().top + s.getBoundingClientRect().height / 2);
+  const t = e.best === 'dawn' ? '06:30' : e.best === 'dusk' ? '17:30' : e.best === 'night' ? '19:30' : tIdx === 0 ? '09:00' : '14:00';
+  state.changedDay = di;
+  applyChange(p ? `Moved ${e.name} to day ${di + 1}.` : `Added ${e.name} to day ${di + 1}.`, [], () => { if (p) state.plan.days[p.i].slots.splice(p.j, 1); delete state.removed[id]; state.plan.days[di].slots.push({ id, t }); sortDay(di); });
+}
+// variants drawer (remix by the day)
+function renderVariants() {
+  const c = $('#variants'); if (state.mode !== 'refine') { c.innerHTML = ''; return; }
+  const others = state.options.filter(o => o.id !== state.plan.id);
+  c.innerHTML = `<div class="vh">Remix · days from the other options</div>` + others.flatMap(o => o.days.filter((d, i) => !d.end && d.slots.length).map((d, i) => { const idx = o.days.indexOf(d); return `<div class="vday" data-o="${o.id}" data-i="${idx}" style="border-left:3px solid ${o.accent}"><div class="vslots">${d.slots.slice(0, 3).map(s => `<div class="vslot" data-slot="${s.id}" data-shape="pin" data-prio="0" data-role="variant"></div>`).join('')}</div><div class="vt"><b>${D.regions[d.base].name} · day ${idx + 1}</b><span>${o.thesis}</span></div><button data-use="1">Use as day ${idx + 1}</button></div>`; })).join('');
+  $$('.vday', c).forEach(v => {
+    const o = state.options.find(x => x.id === v.dataset.o); const d = o.days[+v.dataset.i]; const idx = +v.dataset.i;
+    let priceEl = null;
+    v.addEventListener('pointerenter', () => { if (!state.plan.days[idx] || state.plan.days[idx].end) return; const trial = JSON.parse(JSON.stringify(state.plan)); trial.days[idx] = JSON.parse(JSON.stringify(d)); const a = optionStats(state.plan), b = optionStats(trial); const dk = b.km - a.km, dh = Math.round((b.hours - a.hours) * 10) / 10, db = b.beds - a.beds; const out = state.plan.days[idx].slots.filter(s => !d.slots.some(x => x.id === s.id)).map(s => D.byId[s.id].name); priceEl = document.createElement('div'); priceEl.className = 'price'; priceEl.textContent = `${dk >= 0 ? '+' : ''}${dk} km · ${dh >= 0 ? '+' : ''}${dh} h · ${db >= 0 ? '+' : ''}${db} beds${out.length ? ' · drops ' + out.slice(0, 2).join(', ') : ''}`; document.body.append(priceEl); const r = v.getBoundingClientRect(); priceEl.style.left = r.left + 'px'; priceEl.style.top = (r.top - 34) + 'px'; v.classList.add('pricing'); const day = $(`.day[data-day="${idx}"]`); day && day.classList.add('over'); renderMap($('#dash-map'), { ...maps['dash-map'], route: optionRoute(state.plan).concat(optionRoute(trial).map(s => ({ ...s, proposed: true }))), animate: false }); });
+    v.addEventListener('pointerleave', () => { priceEl && priceEl.remove(); v.classList.remove('pricing'); $$('.day.over').forEach(x => x.classList.remove('over')); renderMap($('#dash-map'), { ...maps['dash-map'], route: optionRoute(state.plan), animate: false }); });
+    $('button', v).addEventListener('click', () => { if (!state.plan.days[idx] || state.plan.days[idx].end) return; const lockedOut = state.plan.days[idx].slots.filter(s => state.locked.has(s.id) && !d.slots.some(x => x.id === s.id)); if (lockedOut.length) { plannerSay(`Day ${idx + 1} has ${lockedOut.map(s => D.byId[s.id].name).join(', ')} locked. Unlock first, or I keep the day as it is.`); return; } state.changedDay = idx; applyChange(`Used ${o.thesis}'s day ${idx + 1} (${D.regions[d.base].name}).`, [], () => { state.plan.days[idx] = JSON.parse(JSON.stringify(d)); }); });
+  });
+}
+
+// ---------------------------------------------------------------- CHAT
+function chatSys(t) { const m = document.createElement('div'); m.className = 'msg sys'; m.textContent = t; $('#chat-log').append(m); scrollChat(); }
+function plannerSay(html, opts = {}) {
+  const log = $('#chat-log'); const typing = document.createElement('div'); typing.className = 'msg planner typing'; typing.innerHTML = '<i></i><i></i><i></i>'; log.append(typing); scrollChat();
+  setTimeout(() => { typing.className = 'msg planner'; typing.innerHTML = html + (opts.undo ? `<button class="undo" type="button">Undo</button>` : '') + (opts.delta && opts.delta.length ? `<div class="delta">${opts.delta.map(d => `<span>${esc(d)}</span>`).join('')}</div>` : '') + (opts.qa ? `<div class="qa">${opts.qa.map(q => `<button type="button">${esc(q)}</button>`).join('')}</div>` : ''); if (opts.undo) $('.undo', typing).addEventListener('click', () => { undo(); typing.querySelector('.undo').remove(); }); if (opts.qa) $$('.qa button', typing).forEach(b => b.addEventListener('click', () => userSays(b.textContent))); scrollChat(); }, opts.instant ? 0 : 420);
+}
+function scrollChat() { const l = $('#chat-log'); l.scrollTop = l.scrollHeight; }
+function addChip(c) { if (state.chips.some(x => x.kind === c.kind && x.id === c.id && x.i === c.i)) return; state.chips.push(c); renderChips(); $('#chat-in').focus(); }
+function chipHTML(c) { if (c.kind === 'card') { const e = D.byId[c.id]; return `<span class="refchip"><img src="${e.src}" alt="">${esc(e.name)}</span>`; } return `<span class="refchip"><span class="rslot" style="background:var(--sk-thread);display:inline-block"></span>Day ${c.i + 1} · ${D.regions[currentOption().days[c.i].base].name}</span>`; }
+function renderChips() { $('#chips').innerHTML = state.chips.map((c, i) => chipHTML(c).replace('</span>', `<button type="button" data-rm="${i}" aria-label="Remove">×</button></span>`)).join(''); $$('#chips [data-rm]').forEach(b => b.addEventListener('click', () => { state.chips.splice(+b.dataset.rm, 1); renderChips(); })); }
+function renderQuick() { const q = $('#quick'); q.innerHTML = (state.mode === 'refine' ? ['Less driving', 'One more beach day', 'Lock the Perahera', 'What needs booking?', 'Is Yala worth it in August?'] : ['Why is whale watching out?', 'Which option has the least driving?', 'What\'s the weather in August?']).map(t => `<button type="button">${t}</button>`).join(''); $$('button', q).forEach(b => b.addEventListener('click', () => userSays(b.textContent))); }
+$('#chat-send').addEventListener('click', () => userSays($('#chat-in').value)); $('#chat-in').addEventListener('keydown', (ev) => { if (ev.key === 'Enter') userSays($('#chat-in').value); });
+function userSays(text) {
+  text = (text || '').trim(); if (!text && !state.chips.length) return;
+  const m = document.createElement('div'); m.className = 'msg user'; m.innerHTML = state.chips.map(chipHTML).join(' ') + ' ' + esc(text); $('#chat-log').append(m); scrollChat();
+  const chips = state.chips.slice(); state.chips = []; renderChips(); $('#chat-in').value = '';
+  setTimeout(() => brain(text, chips), 200);
+}
+function findEntity(text, chips) {
+  const c = chips.find(x => x.kind === 'card'); if (c) return D.byId[c.id];
+  const t = text.toLowerCase(); let best = null, bestN = 0;
+  for (const e of D.entities) { const words = e.name.toLowerCase().replace(/[^a-z0-9 ]/g, ' ').split(/\s+/).filter(w => w.length > 3); const n = words.filter(w => t.includes(w)).length; if (n > bestN) { bestN = n; best = e; } }
+  if (bestN) return best;
+  for (const k in D.regions) if (t.includes(D.regions[k].name.toLowerCase())) { const o = currentOption(); const d = o && o.days.find(d => d.base === k && d.slots.length); if (d) return D.byId[d.slots[0].id]; }
+  return null;
+}
+function brain(text, chips) {
+  const t = text.toLowerCase(); const refine = state.mode === 'refine'; const dayChip = chips.find(x => x.kind === 'day'); const e = findEntity(text, chips);
+  const dayMatch = t.match(/day\s*(\d+)/); const targetDay = dayChip ? dayChip.i : dayMatch ? +dayMatch[1] - 1 : null;
+  // FAQ first
+  if (/whale/.test(t)) return plannerSay('Blue whales are off Mirissa from November to April, when the sea is flat. In August the south-west monsoon makes it rough and most operators don\'t sail. If whales matter, Trincomalee on the east coast has sightings in season — or come back in February.', { qa: refine ? ['Swap in Trincomalee', 'Fine, drop it'] : undefined });
+  if (/perahera/.test(t) && !/lock|move|drop/.test(t)) return plannerSay('The Esala Perahera runs ten nights around the Temple of the Tooth; the Randoli nights (15–19 Aug 2024) are the biggest, and the final night is the one people fly in for. Pavement spots are free but you\'ll stand from 5pm; grandstand seats are sold by hotels and go weeks ahead.', { qa: refine ? ['Lock the Perahera'] : undefined });
+  if (/train|ticket/.test(t) && !/move|drop/.test(t)) return plannerSay('The Kandy → Ella train is the ride everyone means. Reserved seats (1st and 2nd class) open exactly 30 days out on the railway site and sell out within the hour; unreserved 2nd/3rd class always exists — you may stand, you\'ll be fine. Sit on the right heading to Ella.');
+  if (/weather|monsoon|rain|august/.test(t)) return plannerSay('August is south-west monsoon: the west and south coasts get afternoon showers and rougher sea, the hills are cool and mostly dry, and the east coast — Trincomalee, Arugam Bay — is at its best. The cultural triangle is hot and dry; that\'s why Sigiriya is a 7am climb.');
+  if (/yala|leopard|worth/.test(t) && !/move|drop|lock/.test(t)) return plannerSay('Yes — August is dry season, water is scarce, and animals come to the tanks. Block 1 usually closes for September, so mid-August is close to the last good window. Go at gate-open; the afternoon drive is emptier.');
+  if (/book|booking|reserve/.test(t)) { const o = currentOption(); const b = [...optionStats(o).sched].filter(id => D.byId[id].lead > 0).sort((a, z) => D.byId[z].lead - D.byId[a].lead); return plannerSay(`Things that sell out, most urgent first: ${b.map(id => `<b>${D.byId[id].name}</b> (${D.byId[id].lead} days ahead)`).join(', ')}. The export page has the checklist with links.`); }
+  if (/least driving|less driving|fewer beds|too much transit/.test(t)) { if (!refine) { const best = state.options.map((o, i) => ({ i, h: optionStats(o).hours })).sort((a, b) => a.h - b.h)[0]; return plannerSay(`<b>${state.options[best.i].thesis}</b> has the least transit at ${best.h} h. ${state.options[state.optIdx].thesis} is ${optionStats(state.options[state.optIdx]).hours} h.`, { qa: [`Show ${state.options[best.i].thesis}`] }); } const o = state.plan; const yi = o.days.findIndex(d => d.base === 'yala'); if (yi > 0 && !o.days.slice(yi).some(d => d.base === 'yala' && d.slots.some(s => state.locked.has(s.id)))) { return plannerSay('The biggest saving is the Yala night: skip the bed there, do Udawalawe as a stop on the way to the coast instead. That cuts a bed and about 2 hours, and you lose the dawn leopard drive.', { qa: ['Do that', 'Keep Yala'] }); } return plannerSay('The route is already fairly tight — the long legs are Kandy → Ella by train (which you want) and the coast → Colombo. I can merge the two Galle days into Mirissa to drop a bed.', { qa: ['Merge Galle into Mirissa'] }); }
+  if (/^show /.test(t)) { const i = state.options.findIndex(o => t.includes(o.thesis.toLowerCase())); if (i >= 0) { state.optIdx = i; renderWork(); return plannerSay(`Showing <b>${state.options[i].thesis}</b>.`, { instant: true }); } }
+  if (/^do that|skip yala|udawalawe instead/.test(t) && refine) { const yi = state.plan.days.findIndex(d => d.base === 'yala'); if (yi >= 0) { state.changedDay = yi; return applyChange('Dropped the Yala night; Udawalawe on the way to the coast instead.', [], () => { const prevBase = state.plan.days[yi - 1].base; state.plan.days[yi] = { base: prevBase, slots: [{ id: 'tea-mist', t: '09:00' }] }; const next = state.plan.days[yi + 1]; if (next) { next.leg = { mode: 'drive', min: 240 }; next.slots = next.slots.filter(s => s.id !== 'yala-leopard'); next.slots.unshift({ id: 'udawalawe', t: '09:30' }); } state.removed['yala-leopard'] = 'you traded it for one fewer bed'; state.removed['yala-elephant'] = 'you traded it for one fewer bed'; }); } }
+  if (/merge galle/.test(t) && refine) { const gi = state.plan.days.findIndex(d => d.base === 'galle'); if (gi >= 0) { state.changedDay = gi; return applyChange('Merged Galle into the Mirissa stay — day trips instead of a second bed.', [], () => { state.plan.days.forEach(d => { if (d.base === 'galle') { d.base = 'mirissa'; if (d.leg) d.leg = null; } }); }); } }
+  if (/beach|slow/.test(t) && refine) { const cand = ['unawatuna', 'cove', 'parrot-rock', 'slow-beach', 'hikkaduwa'].find(id => !planHas(id)); if (!cand) return plannerSay('You already have every beach on the board in. Want me to find another?'); return readdToPlan(cand); }
+  if (/why.*(left|out|drop)/.test(t) && e) { const o = currentOption(); const r = leftOut(o).find(x => x.id === e.id); return plannerSay(r ? `${e.name}: ${r.reason}.` : `${e.name} is in — day ${findSlotIn(o, e.id) + 1}.`, { qa: refine && r ? ['Put it back in'] : undefined }); }
+  if (/put it back|add it anyway|add it back/.test(t) && refine) { const lo = leftOut(state.plan); const id = e ? e.id : lo[0] && lo[0].id; if (!id) return plannerSay('Nothing is left out.'); if (/anyway/.test(t)) { D.byId[id].offSeason = false; } return readdToPlan(id); }
+  if (/swap.*trinco|trincomalee/.test(t) && refine) { return plannerSay('Swapping coasts is a bigger rebuild than a chat edit — pick <b>East, in Season</b> from the remix strip below, day by day, and I\'ll price each one.'); }
+  if (!refine && /(lock|move|drop|remove|swap|add)/.test(t)) return plannerSay('Pick an option first (<b>Go with this one</b>) and I can move, lock, drop and add things.');
+  if (refine && e) {
+    if (/lock/.test(t)) { if (!planHas(e.id)) return plannerSay(`${e.name} isn\'t in the plan yet.`); if (!state.locked.has(e.id)) toggleLock(e.id); return plannerSay(`Locked ${e.name}. I won\'t move it.`, { instant: true }); }
+    if (/unlock/.test(t)) { if (state.locked.has(e.id)) toggleLock(e.id); return plannerSay(`Unlocked ${e.name}.`, { instant: true }); }
+    if (/drop|remove|cut|skip/.test(t)) { if (!planHas(e.id)) return plannerSay(`${e.name} isn\'t in the plan.`); return dropFromPlan(e.id, 'you asked to drop it'); }
+    if (/add|put|include/.test(t) && !planHas(e.id)) { if (targetDay != null) return moveToDay(e.id, targetDay, 0, $(`.day[data-day="${targetDay}"]`)); return readdToPlan(e.id); }
+    if (/earlier|later|move|to day|morning|evening/.test(t)) {
+      const p = findSlot(e.id); if (!p) return readdToPlan(e.id);
+      if (state.locked.has(e.id)) return plannerSay(`${e.name} is locked — unlock it first.`);
+      if (targetDay != null && targetDay !== p.i) return moveToDay(e.id, targetDay, 0, $(`.day[data-day="${targetDay}"]`));
+      if (/earlier|morning/.test(t)) { state.changedDay = p.i; return applyChange(`Moved ${e.name} to the morning of day ${p.i + 1}.`, [], () => { state.plan.days[p.i].slots[p.j].t = '08:00'; sortDay(p.i); }); }
+      if (/later|evening/.test(t)) { state.changedDay = p.i; return applyChange(`Moved ${e.name} to the evening of day ${p.i + 1}.`, [], () => { state.plan.days[p.i].slots[p.j].t = '17:30'; sortDay(p.i); }); }
+      const ni = Math.min(state.plan.days.length - 2, p.i + 1); return moveToDay(e.id, ni, 0, $(`.day[data-day="${ni}"]`));
+    }
+    return plannerSay(`${e.name}: ${e.blurb}`, { qa: planHas(e.id) ? [`Lock ${e.name}`, `Drop ${e.name}`] : [`Add ${e.name}`] });
+  }
+  if (refine && targetDay != null && !e) { const d = state.plan.days[targetDay]; if (d) return plannerSay(`Day ${targetDay + 1} is ${D.regions[d.base].name}: ${d.slots.map(s => D.byId[s.id].name).join(', ') || 'free'}. Tell me what to move, add or drop.`); }
+  plannerSay('I can move, lock, drop, swap or add things — click any card or day header to reference it precisely — or ask about the trip: the Perahera, the train, the weather, what needs booking.', { qa: refine ? ['What needs booking?', 'Less driving'] : ['What\'s the weather in August?'] });
+}
+function findSlotIn(o, id) { return o.days.findIndex(d => d.slots.some(s => s.id === id)); }
+
+// ---------------------------------------------------------------- 5 · EXPORT
+function renderExport() {
+  const o = currentOption() || state.options[0]; if (!o) return; const st = optionStats(o);
+  const bookable = [...st.sched].filter(id => D.byId[id].lead > 0).sort((a, b) => D.byId[b].lead - D.byId[a].lead);
+  const c = $('#exp');
+  c.innerHTML = `<div class="exp-h"><div><h2>Out of the app, into the trip.</h2><p>A print page, a live link for the people you're going with, and the short list of things that sell out.</p></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn quiet" id="back-refine">← Back to refine</button><button class="btn ink" id="print-btn">Print / PDF</button><button class="btn primary" id="cal-btn">Add to calendar</button></div></div>
+    <div class="exp-grid">
+      <div class="paper" id="paper"><img class="brush" src="${D.deco.brush}" alt=""><div class="kick">Gander · ${o.thesis}</div><h3>Sri Lanka,<br>${MON[new Date(state.start).getMonth()]} ${new Date(state.start).getFullYear()}</h3><div class="sub">${fmtD(dateOf(0))} → ${fmtD(dateOf(days() - 1))} · ${nights()} nights · ${state.party} · ${st.km} km · ${st.beds} beds</div>
+        <div class="pmap map" id="exp-map"></div>
+        <div>${o.days.map((d, i) => d.end ? `<div class="pday"><div class="n">${i + 1}<small>${fmtD(dateOf(i))}</small></div><div class="items"><span class="pi">Fly home from Colombo</span></div></div>` : `<div class="pday"><div class="n">${i + 1}<small>${fmtD(dateOf(i))}<br>${D.regions[d.base].name}</small></div><div class="items">${d.leg ? `<span class="pi">${d.leg.mode} ${Math.floor(d.leg.min / 60)}h${d.leg.min % 60 ? d.leg.min % 60 : ''}</span>` : ''}${d.slots.map(s => `<span class="pi ${state.must.has(s.id) ? 'must' : ''}"><img src="${D.byId[s.id].src}" alt="">${s.t} ${esc(D.byId[s.id].name)}</span>`).join('')}</div></div>`).join('')}</div>
+      </div>
+      <div class="side">
+        <div class="box"><h4>Booking readiness <span id="ready-txt">${st.booked} of ${bookable.length}</span></h4><div class="ready"><i id="ready-bar" style="width:${bookable.length ? st.booked / bookable.length * 100 : 0}%"></i></div>
+          ${bookable.map(id => { const e = D.byId[id]; const hot = e.lead >= 30; return `<div class="book"><img src="${e.src}" alt=""><div><div>${esc(e.name)}</div><div class="w ${hot ? 'hot' : ''}">${e.lead >= 30 ? 'sells out · ' : ''}book ${e.lead} days ahead${e.date ? ' · ' + e.dateLabel : ''}</div></div><button data-book="${id}" class="${state.booked.has(id) ? 'done' : ''}">${state.booked.has(id) ? 'booked' : 'mark booked'}</button></div>`; }).join('')}</div>
+        <div class="box"><h4>Share <span>live link</span></h4><div class="share"><input value="gander.app/t/sri-lanka-aug-24" readonly><button class="btn quiet sm" id="copy-link">Copy</button></div><p style="font-size:var(--sk-t-2);color:var(--sk-ink-2)">Anyone with the link sees the plan as it changes, can heart days and leave comments. Comments show up here as suggestions.</p></div>
+        <div class="box"><h4>Offline day view <span>phone</span></h4><p style="font-size:var(--sk-t-2);color:var(--sk-ink-2)">One day at a time, next transit always on screen, works without signal in the hills. Sends to your phone when you save.</p><button class="btn quiet sm" id="phone-btn">Send to my phone</button></div>
+      </div>
+    </div>`;
+  renderMap($('#exp-map'), { route: optionRoute(o), bases: [...new Set(o.days.map(d => d.base))], labels: [...new Set(o.days.map(d => d.base))], pins: [], legend: true, stickers: true });
+  $('#back-refine').addEventListener('click', () => goStage(state.mode === 'refine' ? 'refine' : 'options'));
+  $('#print-btn').addEventListener('click', () => { $('#print').innerHTML = `<div style="font-family:Georgia,serif;padding:24px">${$('#paper').innerHTML.replace(/<img class="brush"[^>]*>/, '')}</div>`; window.print(); });
+  $('#cal-btn').addEventListener('click', () => toast(`${o.days.reduce((a, d) => a + d.slots.length, 0)} events ready for your calendar`, { mono: 'ics · prototype' }));
+  $('#copy-link').addEventListener('click', () => toast('Link copied', { ms: 1400 }));
+  $('#phone-btn').addEventListener('click', () => toast('Sent — open Gander on your phone', { ms: 2000 }));
+  $$('[data-book]', c).forEach(b => b.addEventListener('click', () => { const id = b.dataset.book; if (state.booked.has(id)) state.booked.delete(id); else { state.booked.add(id); state.locked.add(id); } syncCardState(id); renderExport(); }));
+  requestLayout('instant');
+}
+
+// ---------------------------------------------------------------- init
+function init() {
+  D.entities.forEach(e => ensureCard(e.id));
+  goStage('globe');
+}
+init();
+})();
+
+</script>
+
+</body>
+</html>

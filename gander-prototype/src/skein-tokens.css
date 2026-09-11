@@ -1,0 +1,165 @@
+/* ==========================================================================
+   SKEIN — the Gander design system · tokens v0.1
+   A skein is a flock of geese in flight, and a coiled length of thread.
+   The route is the thread. The cards are the beads. Everything else is quiet.
+   ========================================================================== */
+
+:root {
+  /* ---- Ground & ink (light) ------------------------------------------- */
+  --sk-ground:     #EDF0EE;   /* Fog — the page. Cool, slightly green, never cream */
+  --sk-surface:    #FFFFFF;   /* Sheet — panels, cards' chrome, chat */
+  --sk-surface-2:  #F5F7F6;   /* Sheet-2 — wells, inputs, shelf rails */
+  --sk-ink:        #14201F;   /* Slate — primary text, locks, the tray floor */
+  --sk-ink-2:      #4A5856;   /* secondary text */
+  --sk-ink-3:      #7C8987;   /* muted text, placeholders, ghost pins */
+  --sk-line:       #D5DBD9;   /* hairlines */
+  --sk-line-2:     #E4E9E7;   /* softer hairlines inside wells */
+
+  /* ---- The one accent -------------------------------------------------- */
+  --sk-bill:       #FF6A2B;   /* Bill — a goose's bill. Must-haves, primary action, the hovered thing */
+  --sk-bill-hover: #EE5A1C;
+  --sk-bill-soft:  #FFE9DF;   /* tinted wash behind a must-have chip's label */
+  --sk-on-bill:    #14201F;   /* text on Bill */
+
+  /* ---- The thread ------------------------------------------------------ */
+  --sk-thread:     #1B6C86;   /* Wake — the route line, transit connectors, links */
+  --sk-thread-soft:#DCEBF0;
+
+  /* ---- Semantic (never used as accent) --------------------------------- */
+  --sk-ok:         #3F8A5B;   /* Marsh — feasible, booked */
+  --sk-warn:       #D9A43A;   /* Straw — tight, needs attention */
+  --sk-bad:        #C9452F;   /* Brick — over capacity, hard conflict */
+  --sk-ok-soft:    #E3F0E7;
+  --sk-warn-soft:  #F9EFD8;
+  --sk-bad-soft:   #F8E1DC;
+
+  /* ---- Photo scrim (over imagery, any theme) --------------------------- */
+  --sk-scrim:      linear-gradient(180deg, rgba(20,32,31,0) 45%, rgba(20,32,31,.72) 100%);
+  --sk-on-photo:   #FFFFFF;
+
+  /* ---- Type ------------------------------------------------------------ */
+  --sk-font-display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+  --sk-font-body:    "IBM Plex Sans", "Segoe UI", Roboto, system-ui, sans-serif;
+  --sk-font-data:    "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+
+  --sk-t-1: 0.75rem;   /* 12 — data labels, coordinates */
+  --sk-t-2: 0.8125rem; /* 13 — chips, captions */
+  --sk-t-3: 0.875rem;  /* 14 — UI body */
+  --sk-t-4: 1rem;      /* 16 — reading body */
+  --sk-t-5: 1.25rem;   /* 20 — card names (hero), section leads */
+  --sk-t-6: 1.625rem;  /* 26 — option thesis, day headers */
+  --sk-t-7: 2.125rem;  /* 34 — page titles */
+  --sk-t-8: 3rem;      /* 48 — stat numerals */
+  --sk-t-9: 4.25rem;   /* 68 — the one big number */
+
+  --sk-lh-tight: 1.1;
+  --sk-lh-ui:    1.35;
+  --sk-lh-read:  1.55;
+  --sk-track-label: 0.06em;
+
+  /* ---- Space (4pt) ----------------------------------------------------- */
+  --sk-s-1: 4px;  --sk-s-2: 8px;  --sk-s-3: 12px; --sk-s-4: 16px;
+  --sk-s-5: 20px; --sk-s-6: 24px; --sk-s-7: 32px; --sk-s-8: 40px;
+  --sk-s-9: 56px; --sk-s-10: 72px;
+
+  /* ---- Radius: grows with the object ----------------------------------- */
+  --sk-r-pin:   999px;  /* map pin — a circle */
+  --sk-r-chip:  8px;    /* tray / slot chip */
+  --sk-r-tile:  12px;   /* gallery tile */
+  --sk-r-hero:  18px;   /* expanded card */
+  --sk-r-sheet: 24px;   /* panels, mobile sheets */
+  --sk-r-ctl:   10px;   /* buttons, inputs */
+
+  /* ---- Elevation: only moving or floating things cast shadows ---------- */
+  --sk-e-rest:  none;
+  --sk-e-hover: 0 2px 8px rgba(20,32,31,.10), 0 0 0 1px rgba(20,32,31,.04);
+  --sk-e-lift:  0 12px 32px rgba(20,32,31,.22), 0 2px 6px rgba(20,32,31,.10);   /* a card in flight */
+  --sk-e-sheet: 0 24px 64px rgba(20,32,31,.28);
+
+  /* ---- Card size classes ----------------------------------------------- */
+  --sk-card-pin:  32px;
+  --sk-card-chip: 64px;
+  --sk-card-tile: 184px;
+  --sk-card-hero: 400px;
+
+  /* ---- Motion: one spring, a few durations ----------------------------- */
+  --sk-spring: cubic-bezier(.22,.9,.24,1.02);  /* ≈ spring(stiffness 380, damping 32) */
+  --sk-ease-out: cubic-bezier(.2,.7,.2,1);
+  --sk-d-quick:  120ms;   /* hover, focus, toggles */
+  --sk-d-shrink: 240ms;   /* card → pin */
+  --sk-d-settle: 280ms;   /* card → slot */
+  --sk-d-fly:    320ms;   /* card → tray, remix */
+  --sk-d-reveal: 480ms;   /* panels, sheets */
+
+  /* ---- Status rings (drawn on every projection) ------------------------ */
+  --sk-ring-want:   0 0 0 2px var(--sk-surface);
+  --sk-ring-must:   0 0 0 2px var(--sk-surface), 0 0 0 4px var(--sk-bill);
+  --sk-ring-locked: 0 0 0 2px var(--sk-surface), 0 0 0 4px var(--sk-ink);
+  --sk-ring-booked: 0 0 0 2px var(--sk-surface), 0 0 0 4px var(--sk-ok);
+
+  /* ---- Route thread styles by mode ------------------------------------ */
+  --sk-thread-w: 3px;
+  --sk-thread-drive: 0;          /* solid */
+  --sk-thread-fly:   10 8;       /* long dash */
+  --sk-thread-rail:  6 4;        /* short dash */
+  --sk-thread-walk:  1 6;        /* dotted */
+  --sk-thread-ferry: 14 6 2 6;   /* dash-dot */
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --sk-ground:     #0F1516;
+    --sk-surface:    #17201F;
+    --sk-surface-2:  #1E2928;
+    --sk-ink:        #ECF0EE;
+    --sk-ink-2:      #A8B4B1;
+    --sk-ink-3:      #718280;
+    --sk-line:       #2C3836;
+    --sk-line-2:     #243030;
+    --sk-bill:       #FF7A3D;
+    --sk-bill-hover: #FF8B57;
+    --sk-bill-soft:  #3A2418;
+    --sk-on-bill:    #0F1516;
+    --sk-thread:     #5FB3CE;
+    --sk-thread-soft:#1A2F37;
+    --sk-ok:         #6CC08A;  --sk-ok-soft:   #16301F;
+    --sk-warn:       #E7B75A;  --sk-warn-soft: #362A12;
+    --sk-bad:        #E5654F;  --sk-bad-soft:  #3B1A15;
+    --sk-e-hover: 0 2px 8px rgba(0,0,0,.35), 0 0 0 1px rgba(255,255,255,.04);
+    --sk-e-lift:  0 12px 32px rgba(0,0,0,.55), 0 2px 6px rgba(0,0,0,.3);
+    --sk-e-sheet: 0 24px 64px rgba(0,0,0,.6);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --sk-ground:     #0F1516;
+  --sk-surface:    #17201F;
+  --sk-surface-2:  #1E2928;
+  --sk-ink:        #ECF0EE;
+  --sk-ink-2:      #A8B4B1;
+  --sk-ink-3:      #718280;
+  --sk-line:       #2C3836;
+  --sk-line-2:     #243030;
+  --sk-bill:       #FF7A3D;
+  --sk-bill-hover: #FF8B57;
+  --sk-bill-soft:  #3A2418;
+  --sk-on-bill:    #0F1516;
+  --sk-thread:     #5FB3CE;
+  --sk-thread-soft:#1A2F37;
+  --sk-ok:         #6CC08A;  --sk-ok-soft:   #16301F;
+  --sk-warn:       #E7B75A;  --sk-warn-soft: #362A12;
+  --sk-bad:        #E5654F;  --sk-bad-soft:  #3B1A15;
+  --sk-e-hover: 0 2px 8px rgba(0,0,0,.35), 0 0 0 1px rgba(255,255,255,.04);
+  --sk-e-lift:  0 12px 32px rgba(0,0,0,.55), 0 2px 6px rgba(0,0,0,.3);
+  --sk-e-sheet: 0 24px 64px rgba(0,0,0,.6);
+  color-scheme: dark;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --sk-d-quick: 0ms; --sk-d-shrink: 120ms; --sk-d-settle: 120ms;
+    --sk-d-fly: 120ms; --sk-d-reveal: 120ms;
+  }
+}
