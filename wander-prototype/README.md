@@ -1,4 +1,4 @@
-# Gander — prototype v0.1 (Sri Lanka, August 2024)
+# Wander — prototype v0.1 (Sri Lanka, August 2024)
 
 A trip planner where you plan by **picking pictures**. A photo you tap is a
 geo-located, duration-bearing, seasonal, bookable constraint — and the same card
@@ -6,7 +6,7 @@ object flies from the gallery to your tray, into a day in the itinerary, down to
 a pin on the map, and into the printed plan. It is never re-created or swapped
 for a lookalike.
 
-Built on **Skein**, the Gander design system.
+Built on **Skein**, the Wander design system.
 
 ## Run it
 
@@ -58,7 +58,7 @@ It inlines `skein-tokens.css` + `app.css` + `data.js` + `app.js` into
 ## Deploying
 
 This folder is the published site root. `.github/workflows/pages.yml` at the repo
-root uploads it on every push to `main` that touches `gander-prototype/**`, so the
+root uploads it on every push to `main` that touches `wander-prototype/**`, so the
 folder keeps its name and nothing else in the repo is served.
 
 Repo setting: **Settings → Pages → Source → GitHub Actions**. Branch deploy won't

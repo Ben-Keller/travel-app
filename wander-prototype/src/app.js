@@ -1,8 +1,8 @@
-/* Gander prototype · app.js
+/* Wander prototype · app.js
    One card per entity, one DOM node for its whole life. Views publish slots; the card layer lays cards onto them. */
 (function () {
 'use strict';
-const D = window.GANDER_DATA;
+const D = window.WANDER_DATA;
 const $ = (s, r) => (r || document).querySelector(s);
 const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -318,8 +318,8 @@ function renderTripline() {
 }
 
 // theme
-$$('[data-theme]').forEach(b => b.addEventListener('click', () => { const t = b.dataset.theme; if (t === 'sys') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', t); $$('[data-theme]').forEach(x => x.setAttribute('aria-pressed', String(x === b))); try { localStorage.setItem('gander-theme', t); } catch (e) { } }));
-try { const t = localStorage.getItem('gander-theme'); if (t) { const b = $(`[data-theme="${t}"]`); b && b.click(); } } catch (e) { }
+$$('[data-theme]').forEach(b => b.addEventListener('click', () => { const t = b.dataset.theme; if (t === 'sys') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme', t); $$('[data-theme]').forEach(x => x.setAttribute('aria-pressed', String(x === b))); try { localStorage.setItem('wander-theme', t); } catch (e) { } }));
+try { const t = localStorage.getItem('wander-theme'); if (t) { const b = $(`[data-theme="${t}"]`); b && b.click(); } } catch (e) { }
 
 // ---------------------------------------------------------------- 1 · GLOBE
 const gc = $('#globe'); const gctx = gc.getContext('2d');
@@ -405,7 +405,7 @@ function nearShelf() {
 function renderShelves() {
   const c = $('#board-shelves'); c.classList.add('clip');
   const sizes = ['', 'tall', 'wide', '', 'wide', 'tall', '', ''];
-  let html = `<div class="board-h"><div><h2>Build it out of photographs.</h2><p>Tap what you want. Gander reads each photo as a place, a duration, a season and a booking — you just pick.</p></div>
+  let html = `<div class="board-h"><div><h2>Build it out of photographs.</h2><p>Tap what you want. Wander reads each photo as a place, a duration, a season and a booking — you just pick.</p></div>
     <div class="sugg" id="sugg" hidden></div></div>`;
   for (const sh of D.shelves) {
     const ids = sh.dynamic ? nearShelf() : sh.ids;
@@ -733,14 +733,14 @@ function renderExport() {
   c.innerHTML = `<div class="exp-h"><div><h2>Out of the app, into the trip.</h2><p>A print page, a live link for the people you're going with, and the short list of things that sell out.</p></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn quiet" id="back-refine">← Back to refine</button><button class="btn ink" id="print-btn">Print / PDF</button><button class="btn primary" id="cal-btn">Add to calendar</button></div></div>
     <div class="exp-grid">
-      <div class="paper" id="paper"><img class="brush" src="${D.deco.brush}" alt=""><div class="kick">Gander · ${o.thesis}</div><h3>Sri Lanka,<br>${MON[new Date(state.start).getMonth()]} ${new Date(state.start).getFullYear()}</h3><div class="sub">${fmtD(dateOf(0))} → ${fmtD(dateOf(days() - 1))} · ${nights()} nights · ${state.party} · ${st.km} km · ${st.beds} beds</div>
+      <div class="paper" id="paper"><img class="brush" src="${D.deco.brush}" alt=""><div class="kick">Wander · ${o.thesis}</div><h3>Sri Lanka,<br>${MON[new Date(state.start).getMonth()]} ${new Date(state.start).getFullYear()}</h3><div class="sub">${fmtD(dateOf(0))} → ${fmtD(dateOf(days() - 1))} · ${nights()} nights · ${state.party} · ${st.km} km · ${st.beds} beds</div>
         <div class="pmap map" id="exp-map"></div>
         <div>${o.days.map((d, i) => d.end ? `<div class="pday"><div class="n">${i + 1}<small>${fmtD(dateOf(i))}</small></div><div class="items"><span class="pi">Fly home from Colombo</span></div></div>` : `<div class="pday"><div class="n">${i + 1}<small>${fmtD(dateOf(i))}<br>${D.regions[d.base].name}</small></div><div class="items">${d.leg ? `<span class="pi">${d.leg.mode} ${Math.floor(d.leg.min / 60)}h${d.leg.min % 60 ? d.leg.min % 60 : ''}</span>` : ''}${d.slots.map(s => `<span class="pi ${state.must.has(s.id) ? 'must' : ''}"><img src="${D.byId[s.id].src}" alt="">${s.t} ${esc(D.byId[s.id].name)}</span>`).join('')}</div></div>`).join('')}</div>
       </div>
       <div class="side">
         <div class="box"><h4>Booking readiness <span id="ready-txt">${st.booked} of ${bookable.length}</span></h4><div class="ready"><i id="ready-bar" style="width:${bookable.length ? st.booked / bookable.length * 100 : 0}%"></i></div>
           ${bookable.map(id => { const e = D.byId[id]; const hot = e.lead >= 30; return `<div class="book"><img src="${e.src}" alt=""><div><div>${esc(e.name)}</div><div class="w ${hot ? 'hot' : ''}">${e.lead >= 30 ? 'sells out · ' : ''}book ${e.lead} days ahead${e.date ? ' · ' + e.dateLabel : ''}</div></div><button data-book="${id}" class="${state.booked.has(id) ? 'done' : ''}">${state.booked.has(id) ? 'booked' : 'mark booked'}</button></div>`; }).join('')}</div>
-        <div class="box"><h4>Share <span>live link</span></h4><div class="share"><input value="gander.app/t/sri-lanka-aug-24" readonly><button class="btn quiet sm" id="copy-link">Copy</button></div><p style="font-size:var(--sk-t-2);color:var(--sk-ink-2)">Anyone with the link sees the plan as it changes, can heart days and leave comments. Comments show up here as suggestions.</p></div>
+        <div class="box"><h4>Share <span>live link</span></h4><div class="share"><input value="wander.app/t/sri-lanka-aug-24" readonly><button class="btn quiet sm" id="copy-link">Copy</button></div><p style="font-size:var(--sk-t-2);color:var(--sk-ink-2)">Anyone with the link sees the plan as it changes, can heart days and leave comments. Comments show up here as suggestions.</p></div>
         <div class="box"><h4>Offline day view <span>phone</span></h4><p style="font-size:var(--sk-t-2);color:var(--sk-ink-2)">One day at a time, next transit always on screen, works without signal in the hills. Sends to your phone when you save.</p><button class="btn quiet sm" id="phone-btn">Send to my phone</button></div>
       </div>
     </div>`;
@@ -749,7 +749,7 @@ function renderExport() {
   $('#print-btn').addEventListener('click', () => { $('#print').innerHTML = `<div style="font-family:Georgia,serif;padding:24px">${$('#paper').innerHTML.replace(/<img class="brush"[^>]*>/, '')}</div>`; window.print(); });
   $('#cal-btn').addEventListener('click', () => toast(`${o.days.reduce((a, d) => a + d.slots.length, 0)} events ready for your calendar`, { mono: 'ics · prototype' }));
   $('#copy-link').addEventListener('click', () => toast('Link copied', { ms: 1400 }));
-  $('#phone-btn').addEventListener('click', () => toast('Sent — open Gander on your phone', { ms: 2000 }));
+  $('#phone-btn').addEventListener('click', () => toast('Sent — open Wander on your phone', { ms: 2000 }));
   $$('[data-book]', c).forEach(b => b.addEventListener('click', () => { const id = b.dataset.book; if (state.booked.has(id)) state.booked.delete(id); else { state.booked.add(id); state.locked.add(id); } syncCardState(id); renderExport(); }));
   requestLayout('instant');
 }

@@ -1,6 +1,6 @@
 name: Deploy prototype to GitHub Pages
 
-# Publishes gander-prototype/ as the site root, so the prototype keeps its
+# Publishes wander-prototype/ as the site root, so the prototype keeps its
 # folder name and nothing else in the repo is served.
 # Settings → Pages → Source must be set to "GitHub Actions".
 
@@ -8,7 +8,7 @@ on:
   push:
     branches: [main]
     paths:
-      - 'gander-prototype/**'
+      - 'wander-prototype/**'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 
@@ -33,6 +33,6 @@ jobs:
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: ./gander-prototype
+          path: ./wander-prototype
       - id: deployment
         uses: actions/deploy-pages@v4

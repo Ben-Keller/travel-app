@@ -1,7 +1,7 @@
-/* Gander prototype · data
+/* Wander prototype · data
    Photos are the Canva "Sri Lanka Moodboard" export (Elif Su Duygun), reused as placeholders.
    Metadata below is demo enrichment: durations, best time of day, seasonality, booking lead. */
-window.GANDER_DATA = (function () {
+window.WANDER_DATA = (function () {
   const A = 'assets/';
   const img = (f) => A + f;
 
